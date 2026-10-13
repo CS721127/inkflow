@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Writer Pro</title>
+    <style>
+        :root {
+            /* Light Mode */
+            --bg-color: #f4f4f9;
+            --sidebar-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #6200ea;
+            --editor-bg: #ffffff;
+            --editor-border: #dddddd;
+            --stat-box-bg: #f0f0f0;
+            --sidebar-width: 300px;
+            --header-height: 120px;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --sidebar-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #bb86fc;
+            --editor-bg: #2c2c2c;
+            --editor-border: #444444;
+            --stat-box-bg: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Layout Architecture */
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            min-width: 0; /* Prevent flex blowout */
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--editor-border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        /* Header & Toolbar */
+        .header-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        #filenameInput {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 2px 5px;
+            width: 200px;
+            transition: border-bottom 0.2s;
+        }
+
+        #filenameInput:focus {
+            outline: none;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* Form Controls */
+        button {
+            padding: 8px 14px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:hover { opacity: 0.85; }
+        
+        button.secondary { background-color: #e0e0e0; color: #333; }
+        body.dark-mode button.secondary { background-color: #444; color: #fff; }
+
+        button.danger { background-color: #d32f2f; color: white; }
+        body.dark-mode button.danger { background-color: #b71c1c; color: white; }
+
+        select {
+            padding: 7px;
+            border-radius: 6px;
+            border: 1px solid var(--editor-border);
+            background: var(--editor-bg);
+            color: var(--text-color);
+            font-size: 0.85rem;
+        }
+
+        /* Editor Area */
+        textarea {
+            flex: 1;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid var(--editor-border);
+            border-radius: 12px;
+            resize: none;
+            font-size: 1rem;
+            line-height: 1.6;
+            outline: none;
+            box-sizing: border-box;
+            background: var(--editor-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s, border-color 0.2s;
+        }
+
+        textarea:focus { border-color: var(--accent-color); }
+
+        /* Sidebar Stats/Analysis */
+        .stat-box {
+            background: var(--stat-box-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .stat-item span { display: block; font-size: 1.2rem; font-weight: bold; }
+        .stat-item label { font-size: 0.75rem; opacity: 0.7; }
+
+        .suggestion-card {
+            background: var(--editor-bg);
+            border: 1px solid var(--editor-border);
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        
+        .suggestion-card.good { border-left-color: #4caf50; }
+        .suggestion-card.bad { border-left-color: #f44336; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow-y: auto; }
+            .app-container { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                border-left: none; 
+                border-top: 1px solid var(--editor-border); 
+                height: auto;
+                box-shadow: none;
+            }
+            .main-content { height: 80vh; flex: none; }
+            #filenameInput { width: 150px; }
+            .toolbar button span { display: none; } /* Icons only on very small screens if needed */
+        }
+
+        #fileInput { display: none; }
+
+        /* Print/PDF Export */
+        #print-area {
+            display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Georgia', serif;
+            font-size: 12pt;
+            line-height: 1.8;
+            color: #000;
+            padding: 40px;
+        }
+
+        @media print {
+            @page { margin: 2cm; }
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .app-container, .sidebar, .toolbar, .header-section, textarea { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="main-content">
+            <div class="header-section">
+                <div class="top-row">
+                    <input type="text" id="filenameInput" value="Untitled Document" title="Click to rename">
+                    <button class="secondary" onclick="toggleTheme()" style="padding: 8px; margin-left: auto;">🌓</button>
+                </div>
+                
+                <div class="toolbar">
+                    <input type="file" id="fileInput" accept=".txt,.md">
+                    <button class="secondary" onclick="document.getElementById('fileInput').click()">📂 <span>Import</span></button>
+                    
+                    <button class="secondary" onclick="saveData()">💾 <span>Save</span></button>
+                    
+                    <select id="exportFormat">
+                        <option value="txt">.txt (Plain Text)</option>
+                        <option value="md">.md (Markdown)</option>
+                    </select>
+                    
+                    <button class="secondary" onclick="downloadFile()">📥 <span>Download</span></button>
+                    <button class="secondary" onclick="exportPDF()">📄 <span>PDF</span></button>
+                    <button class="danger" onclick="clearEditor()">🗑️ <span>Clear</span></button>
+                    <button onclick="analyzeText()">✨ <span>Analyze</span></button>
+                </div>
+            </div>
+            
+            <textarea id="editor" placeholder="Start writing here..."></textarea>
+            <div id="print-area"></div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Dashboard</h3>
+            <div class="stat-box">
+                <div class="stat-item">
+                    <span id="wordCount">0</span>
+                    <label>Words</label>
+                </div>
+                <div class="stat-item">
+                    <span id="charCount">0</span>
+                    <label>Chars</label>
+                </div>
+            </div>
+            
+            <h4>Recommendations</h4>
+            <div id="recommendations">
+                <p style="color: #888; font-style: italic; font-size: 0.9rem;">Analysis results will appear here.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const fileInput = document.getElementById('fileInput');
+        const filenameInput = document.getElementById('filenameInput');
+        const recBox = document.getElementById('recommendations');
+        const wordCountDisplay = document.getElementById('wordCount');
+        const charCountDisplay = document.getElementById('charCount');
+        const printArea = document.getElementById('print-area');
+        const exportFormat = document.getElementById('exportFormat');
+
+        // --- 1. LOCAL STORAGE PERSISTENCE ---
+        function loadSavedData() {
+            const savedText = localStorage.getItem('writer_pad_text');
+            const savedName = localStorage.getItem('writer_pad_name');
+            const savedTheme = localStorage.getItem('writer_pad_theme');
+
+            if (savedText !== null) editor.value = savedText;
+            if (savedName !== null) filenameInput.value = savedName;
+            if (savedTheme === 'dark') document.body.classList.add('dark-mode');
+            
+            updateStats();
+        }
+
+        function saveData() {
+            localStorage.setItem('writer_pad_text', editor.value);
+            localStorage.setItem('writer_pad_name', filenameInput.value);
+            showSimpleMessage("Saved to local storage!");
+        }
+
+        editor.addEventListener('input', () => {
+            updateStats();
+        });
+
+        // --- 2. LIVE STATS ---
+        function updateStats() {
+            const text = editor.value;
+            charCountDisplay.textContent = text.length;
+            wordCountDisplay.textContent = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+        }
+
+        // --- 3. THEME ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('writer_pad_theme', isDark ? 'dark' : 'light');
+        }
+
+        // --- 4. IMPORT ---
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Auto-update filename based on imported file
+            const nameWithoutExt = file.name.replace(/\\.[^/.]+$/, "");
+            filenameInput.value = nameWithoutExt;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                editor.value = e.target.result;
+                saveData();
+                updateStats();
+            };
+            reader.readAsText(file);
+        });
+
+        // --- 5. EXPORT/SAVE FILE ---
+        function downloadFile() {
+            const text = editor.value;
+            const format = exportFormat.value;
+            const filename = (filenameInput.value || 'untitled') + '.' + format;
+            
+            const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
+            const blob = new Blob([text], { type: mimeType });
+            
+            const anchor = document.createElement('a');
+            anchor.download = filename;
+            anchor.href = window\.URL.createObjectURL(blob);
+            anchor.click();
+            window\.URL.revokeObjectURL(anchor.href);
+        }
+
+        // --- 6. EXPORT PDF ---
+        function exportPDF() {
+            const text = editor.value;
+            if(!text.trim()) { 
+                showSimpleMessage("Nothing to export!");
+                return; 
+            }
+            printArea.textContent = text;
+            window\.print();
+        }
+
+        function clearEditor() {
+            if (confirm("Are you sure you want to clear the editor?")) {
+                editor.value = '';
+                updateStats();
+                if (confirm("Do you also want to clear the saved data in local storage?")) {
+                    localStorage.removeItem('writer_pad_text');
+                    localStorage.removeItem('writer_pad_name');
+                    showSimpleMessage("Editor and local storage cleared!");
+                } else {
+                    showSimpleMessage("Editor cleared!");
+                }
+            }
+        }
+
+        function showSimpleMessage(msg) {
+            const div = document.createElement('div');
+            div.style = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:20px; z-index:1000;";
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 2000);
+        }
+
+        // --- 7. ANALYSIS ---
+        function analyzeText() {
+            const text = editor.value;
+            recBox.innerHTML = ''; 
+
+            if (!text.trim()) {
+                recBox.innerHTML = '<p>Write some text to analyze.</p>';
+                return;
+            }
+
+            let suggestions = [];
+
+            // Adverbs check
+            const adverbs = (text.match(/\b\w+ly\b/gi) || []).length;
+            if (adverbs > 5) {
+                suggestions.push({
+                    type: 'bad',
+                    msg: `Found <b>${adverbs}</b> adverbs. Consider stronger verbs instead.`
+                });
+            }
+
+            // Passive voice hint (simple check)
+            const passiveIndicators = /\b(am|is|are|was|were|be|been|being)\b\s+\w+ed\b/gi;
+            const passiveCount = (text.match(passiveIndicators) || []).length;
+            if (passiveCount > 0) {
+                suggestions.push({
+                    type: 'bad',
+                    msg: `Possible passive voice detected <b>${passiveCount}</b> times. Try active voice.`
+                });
+            }
+
+            // Wordiness
+            const weakWords = ['very', 'really', 'literally', 'basically', 'just', 'somewhat'];
+            let foundWeak = [];
+            weakWords.forEach(word => {
+                if (new RegExp(`\\\b${word}\\\b`, 'gi').test(text)) foundWeak.push(word);
+            });
+            if (foundWeak.length > 0) {
+                suggestions.push({
+                    type: 'bad',
+                    msg: `Remove filler words: <b>${[...new Set(foundWeak)].join(', ')}</b>.`
+                });
+            }
+
+            // Positive reinforcement
+            if (text.length > 500) {
+                suggestions.push({
+                    type: 'good',
+                    msg: "Great stamina! You've written a substantial amount."
+                });
+            }
+
+            if (suggestions.length === 0) {
+                recBox.innerHTML = '<div class="suggestion-card good">Looks solid! Keep going.</div>';
+            } else {
+                suggestions.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = `suggestion-card ${s.type}`;
+                    div.innerHTML = s.msg;
+                    recBox.appendChild(div);
+                });
+            }
+        }
+
+        // Initialize
+        window\.onload = loadSavedData;
+    </script>
+</body>
+</html>
