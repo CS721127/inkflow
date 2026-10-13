@@ -1,4 +1,4 @@
-/* Interactive Writer Pro — Harper adapter (local, lazy-loaded).
+/* InkFlow — Harper adapter (local, lazy-loaded).
  * Harper is Apache-2.0, installed with npm install and copied to vendor/harper/.
  * No CDN requests and no text is sent to a server.
  */

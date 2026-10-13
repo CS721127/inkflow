@@ -1,3 +1,17 @@
+# Installed packages and local distribution output
 node_modules/
-.DS_Store
+dist/
+coverage/
+*.tgz
 *.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Personal/local working files
+.env
+.env.local
+
+# Locally packaged artifacts
+InkFlow_Offline_Ready.zip

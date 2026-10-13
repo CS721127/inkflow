@@ -7,8 +7,8 @@ VENDOR=ROOT/'vendor/harper'
 for name in ('index.js','binaryInlined.js'):
     if not (VENDOR/name).is_file():
         raise SystemExit(f'Cannot package offline yet: {name} missing. Run npm install first.')
-out=ROOT.parent/'Interactive_Writer_Pro_Offline_Ready.zip'
-include=['index.html','css','js','assets','vendor','scripts/serve.mjs','README.md','THIRD_PARTY.md','package.json']
+out=ROOT.parent/'InkFlow_Offline_Ready.zip'
+include=['index.html','css','js','assets','vendor','scripts/serve.mjs','README.md','THIRD_PARTY.md','LICENSE','PRIVACY.md','CHANGELOG.md','package.json']
 with ZipFile(out,'w',compression=ZIP_DEFLATED,compresslevel=9) as z:
     for entry in include:
         src=ROOT/entry

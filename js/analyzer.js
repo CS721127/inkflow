@@ -1,4 +1,4 @@
-/* Interactive Writer Pro · local writing analysis engine
+/* InkFlow · local writing analysis engine
  * No network calls, external APIs, storage, or dependencies.
  * English-style checks are suggestions, not grammar/spelling verification.
  * The source-offset contract allows a suggestion to select its exact Markdown span.

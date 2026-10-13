@@ -1,8 +1,14 @@
-# Third-party software
+# Third-party notices
 
-- CodeMirror 5 (MIT) and marked (MIT): embedded under `js/vendor/markdown-editor.bundle.js`, originally provided in the user's source HTML. See license comments in the JS file.
-- Harper (`harper.js`, Apache-2.0): optional English grammar engine installed with `npm install`, then copied into `vendor/harper`. See https://github.com/Automattic/harper. No Harper binaries were downloaded or copied into this initial ZIP.
+InkFlow includes or optionally installs the following independently licensed dependencies. The project MIT license does **not** replace the original third-party licenses or copyright notices.
 
-This package must not be described as bundling Harper until `npm install` successfully populates `vendor/harper/`.
+| Component | Where it is used | License | Distribution status |
+|---|---|---|---|
+| CodeMirror 5 | `js/vendor/markdown-editor.bundle.js` | MIT | Bundled; original header retained |
+| marked | `js/vendor/markdown-editor.bundle.js` | MIT | Bundled |
+| MathJax 3.2.1 | `vendor/mathjax/` | Apache-2.0 | Bundled, with `vendor/mathjax/LICENSE.txt` |
+| Harper (`harper.js@2.4.0`) | `vendor/harper/` | Apache-2.0 | **Not** in the original ZIP; npm install downloads/copies runtime |
 
-- **MathJax 3.2.1** — Apache License 2.0; complete source license in `vendor/mathjax/LICENSE.txt`. Bundled local TeX-to-SVG component and TeX font data. https://github.com/mathjax/MathJax-src
+Official projects: [CodeMirror](https://codemirror.net/), [marked](https://marked.js.org/), [MathJax](https://www.mathjax.org/), [Harper](https://github.com/Automattic/harper).
+
+When redistributing a fully offline build, include the bundled licenses and upstream notices. Harper's package and license are obtained by `npm install` before `npm run package:offline`. Do not assume the grammar engine is present in this source archive.

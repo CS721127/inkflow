@@ -21,4 +21,4 @@ createServer(async (req,res)=>{
     res.writeHead(200,{'Content-Type':mime[extname(full)]||'application/octet-stream','X-Content-Type-Options':'nosniff'});
     res.end(contents);
   } catch {res.writeHead(404);res.end('Not Found');}
-}).listen(port,'127.0.0.1',()=>console.log(`Writer running at http://localhost:${port}`));
+}).listen(port,'127.0.0.1',()=>console.log(`InkFlow running at http://localhost:${port}`));
