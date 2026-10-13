@@ -1,0 +1,20 @@
+{
+  "name": "interactive-writer-pro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Client-side Markdown writer with local Harper grammar checking and stationery PDF exports",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "dev": "node scripts/serve.mjs",
+    "setup:harper": "node scripts/vendor-harper.mjs",
+    "postinstall": "node scripts/vendor-harper.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "package:offline": "python3 scripts/pack_offline.py"
+  },
+  "dependencies": {
+    "harper.js": "2.4.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
