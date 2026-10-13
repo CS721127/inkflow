@@ -225,50 +225,32 @@ function downloadFile(){
  showMessage('Downloaded '+name+'.'+format);
 }
 
-// Self-contained, vector stationery sheets: foreground SVGs ensure decorative
-// elements are printed even when browser "background graphics" is disabled.
-function applyStationeryStyle(){
- const picker = $('exportStyle');
- const chosen = (picker && stationeryArt[picker.value]) ? picker.value : 'classic';
- const fancy = chosen !== 'classic' && chosen !== 'ruled';
- // Classic and notebook retain the original comfortable margins. Fancy
- // stationery reserves a little more room for corner illustrations.
- const top = fancy ? 27 : 18;
- const horizontal = chosen === 'ruled' ? 33 : (fancy ? 23 : 19);
- const bottom = fancy ? 31 : 18;
- $('paperStyle').textContent = chosen === 'classic'
-  ? '@media print { @page {size:A4; margin:18mm 19mm} }'
-  : '@media print { @page {size:A4; margin:0} '+
-    '#print-area {padding:'+top+'mm '+horizontal+'mm '+bottom+'mm !important;'+
-    'box-decoration-break:clone;-webkit-box-decoration-break:clone} '+
-    '#print-area .paper-art {top:0 !important;left:0 !important} }';
- return chosen;
-}
-
+// A4 pages are constructed explicitly. Each page carries its own stationery SVG;
+// mobile print engines no longer have to repeat one fixed background element.
 async function exportPDF(){
  const text=cm.getValue();
  if(!text.trim()){showMessage('Nothing to export.');return;}
  updatePreview();
- await WriterMath.ready();
- const title=filenameInput.value.trim()||'Untitled Document';
- const hasTitle=/^\s*#\s+/.test(text);
- printArea.innerHTML=(hasTitle?'':'<div class="print-title">'+escapeHtml(title)+'</div>')+'<article class="markdown-body">'+preview.innerHTML+'</article>';
- printArea.querySelectorAll('img').forEach(img=>{img.loading='eager';});
- const chosen = applyStationeryStyle();
- if(chosen !== 'classic') {
-  const graphic = document.createElement('div');
-  graphic.className = 'paper-art';
-  graphic.setAttribute('aria-hidden', 'true');
-  const artImage = document.createElement('img');
-  artImage.alt='';
-  artImage.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(stationeryArt[chosen]);
-  graphic.append(artImage);
-  printArea.prepend(graphic);
-  try { await artImage.decode(); } catch (error) { console.warn('Stationery illustration not ready',error); }
- }
- printArea.dataset.stationery=chosen;
- // Native printing keeps Markdown text selectable; the stationery is a vector layer.
- window.print();
+ try {
+   await WriterMath.ready();
+   if(Array.from(preview.querySelectorAll('.iwp-math')).some(el=>!el.querySelector('mjx-container,svg'))){
+      throw new Error('A math formula did not render. Check vendor/mathjax and try again.');
+   }
+   if(document.fonts?.ready)await document.fonts.ready;
+   const images=Array.from(preview.querySelectorAll('img'));
+   await Promise.all(images.map(async img=>{
+      if(!img.complete) await new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,4500);});
+   }));
+   const style=$('exportStyle').value;
+   const result=WriterPdfPages.build(printArea,{
+     style,title:filenameInput.value.trim()||'Untitled Document',
+     hasHeading:/^\s*#\s+/.test(text),html:preview.innerHTML,stationery:stationeryArt
+   });
+   if(result.warnings)showMessage('PDF contains oversized elements; review layout.');
+   // Keep full-page SVG stationery as foreground vectors. Printing does not
+   // depend on Safari's background-graphics checkbox or fixed-element repeats.
+   window.print();
+ }catch(error){console.error(error);showMessage('PDF preparation failed: '+error.message);}
 }
 function clearEditor(){
  closeClearMenu();

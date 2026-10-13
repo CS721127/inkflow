@@ -1,8 +1,8 @@
 {
   "name": "interactive-writer-pro",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "Offline-first Markdown writer with MathJax equations, local multi-file workspaces, Harper grammar, stationery PDF",
+  "description": "Offline-first Markdown writer with MathJax, multi-file workspaces, repeatable A4 stationery PDF and Harper grammar",
   "scripts": {
     "start": "node scripts/serve.mjs",
     "dev": "node scripts/serve.mjs",

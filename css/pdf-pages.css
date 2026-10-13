@@ -1,0 +1,150 @@
+/* Stable A4 print sheets. Each page owns its own full-page SVG stationery artwork.
+   Never position one fixed image across the entire printable document. */
+@media screen {
+  #print-area.pdf-paginated {
+    display: block !important;
+    position: fixed !important;
+    left: -16000px !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: auto !important;
+    visibility: hidden !important;
+    overflow: visible !important;
+    pointer-events: none;
+  }
+}
+#print-area.pdf-paginated {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: white !important;
+  color: #2b2930 !important;
+  box-sizing: border-box;
+}
+#print-area.pdf-paginated .pdf-sheet {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  display: block;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  isolation: isolate;
+}
+#print-area.pdf-paginated .pdf-sheet-art {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  pointer-events: none;
+}
+#print-area.pdf-paginated .pdf-sheet-art svg {
+  display: block;
+  width: 210mm;
+  height: 297mm;
+  max-width: none;
+  max-height: none;
+}
+#print-area.pdf-paginated .pdf-sheet-inner {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  left: var(--pdf-left);
+  right: var(--pdf-right);
+  top: var(--pdf-top);
+  bottom: var(--pdf-bottom);
+  overflow: hidden;
+}
+#print-area.pdf-paginated .pdf-flow {
+  display: flow-root;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  color: #2b2930 !important;
+  font: 11pt/1.55 Georgia, 'Noto Serif CJK SC', 'Songti SC', serif;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+#print-area.pdf-paginated[data-stationery="vintage"] .pdf-flow {color:#41392d!important;}
+#print-area.pdf-paginated .pdf-flow .print-title {
+  font: 700 24pt/1.2 Georgia, 'Noto Serif CJK SC', 'Songti SC', serif;
+  margin:0 0 18pt;
+  padding-bottom:9pt;
+  border-bottom:1px solid #dedede;
+}
+#print-area.pdf-paginated[data-stationery="vintage"] .print-title {border-color:#c8b899;}
+#print-area.pdf-paginated[data-stationery="floral"] .print-title {border-color:#e7c8d3;}
+#print-area.pdf-paginated[data-stationery="kawaii"] .print-title {border-color:#f6d3d9;}
+#print-area.pdf-paginated[data-stationery="sky"] .print-title {border-color:#d0e3f2;}
+#print-area.pdf-paginated .pdf-flow h1 {font-size:20pt;}
+#print-area.pdf-paginated .pdf-flow h2 {font-size:16pt;}
+#print-area.pdf-paginated .pdf-flow h3 {font-size:13pt;}
+#print-area.pdf-paginated .pdf-flow h1,
+#print-area.pdf-paginated .pdf-flow h2,
+#print-area.pdf-paginated .pdf-flow h3,
+#print-area.pdf-paginated .pdf-flow h4 {break-after:avoid;}
+#print-area.pdf-paginated .pdf-flow pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  font-size:9pt;
+  background:#f7f7f7!important;
+}
+#print-area.pdf-paginated .pdf-flow pre code {white-space:pre-wrap;overflow-wrap:anywhere;}
+#print-area.pdf-paginated .pdf-flow table {display:table;width:100%;max-width:100%;overflow:visible;font-size:9.5pt;table-layout:auto;}
+#print-area.pdf-paginated .pdf-flow th {background:#f0f0f0!important;}
+#print-area.pdf-paginated .pdf-flow a {color:#202020;text-decoration:none;}
+#print-area.pdf-paginated .pdf-flow img:not(.iwp-math img) {
+  max-width:100%;
+  max-height:205mm;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+}
+#print-area.pdf-paginated .pdf-flow blockquote {background:#ffffffea!important;}
+#print-area.pdf-paginated .pdf-flow .iwp-display-math {overflow:visible!important;break-inside:avoid;}
+#print-area.pdf-paginated .pdf-flow .iwp-math svg {max-width:100%;height:auto;}
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .app-container, .toast, .settings-dialog, .style-preview-dialog {display:none!important;}
+  #print-area.pdf-paginated {
+    display:block!important;
+    position:static!important;
+    visibility:visible!important;
+    width:210mm!important;
+    overflow:visible!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  #print-area.pdf-paginated .pdf-sheet {
+    width:210mm!important;
+    height:297mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    break-after:page;
+    page-break-after:always;
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  #print-area.pdf-paginated .pdf-sheet:last-child {break-after:auto;page-break-after:auto;}
+  #print-area.pdf-paginated .pdf-sheet-inner {overflow:hidden!important;}
+}

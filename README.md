@@ -7,7 +7,7 @@ The **original UI** (editor on the left, Dashboard on the right), mobile layouts
 Requirements: Node.js 18+; a connection for the **one-time `npm install`** step.
 
 ```bash
-cd Interactive_Writer_Pro_Project
+cd Interactive_Writer_Pro_PDF_Fixed
 npm install
 npm start
 ```
@@ -25,7 +25,7 @@ If you already have Node.js, `npm start` works without `npm install`: the editor
 ## 2. Project tree
 
 ```text
-Interactive_Writer_Pro_Project/
+Interactive_Writer_Pro_PDF_Fixed/
 ├── index.html                        UI and markup
 ├── css/
 │   ├── app.css                       Original visual design and mobile CSS
@@ -95,3 +95,13 @@ $$
 \int_0^1 x^2\, dx=\frac13
 $$
 ```
+
+## 7. PDF pagination fix (v1.2)
+
+The old export used one `position:fixed` 210 × 297 mm illustration for the entire document. Some print engines (especially mobile browsers) printed that illustration only on page 1 or positioned its corners outside the paper.
+
+**Fixed:** `js/pdf-pages.js` constructs explicit A4 sheets. Each page gets its own full-sheet SVG decoration, while its text flows inside safe stationery-specific margins. Long paragraphs and code blocks can split across sheets; tables repeat their header as rows paginate. `css/pdf-pages.css` controls the physical page geometry (`@page` A4, zero outer printer margins). The PDF still uses the native browser print interface, so text remains selectable and formulas are rendered with bundled MathJax.
+
+On mobile choose **PDF** → browser **Save as PDF**, and select **A4**, 100%/default scale and no additional margins when those options appear. On Safari/iOS the print/share panel may expose fewer controls; the browser or a physical printer can override the requested paper size. The fix has been tested with Chromium at desktop and 320–390px mobile viewports, but native iOS Safari print needs device confirmation.
+
+Regression test: `npm test`. Source is 100% client-side and all six stationery styles use the same pagination system. No additional dependency or CDN was added.
