@@ -850,6 +850,34 @@ body {height:100vh;height:100dvh;}
 }
 @media(max-width:380px){.analysis-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}}
 
+
+/* Quiet, non-document guide visible only when the editor is truly blank. */
+.editor-empty-guide {
+  position:absolute; z-index:2; top:49px; left:55px; right:19px;
+  max-width:690px; max-height:calc(100% - 61px); overflow:hidden;
+  pointer-events:none; user-select:none;
+  color:var(--text-color); opacity:.67;
+  font: .87rem/1.52 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+.editor-empty-guide[hidden] { display:none !important; }
+.editor-guide-title { font-size:1.11rem; font-weight:650; margin-bottom:2px; }
+.editor-guide-subtitle {font-size:.8rem; margin-bottom:15px; }
+.editor-empty-guide p { margin:0 0 10px; }
+.editor-empty-guide strong, .editor-empty-guide b { font-weight:650; }
+.editor-empty-guide code, .editor-empty-guide kbd { font:inherit; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
+.editor-guide-tip { font-size:.76rem; margin-top:14px; opacity:.85; }
+@media (max-width:768px) {
+  .editor-empty-guide {left:49px; right:12px; top:39px; font-size:.78rem; line-height:1.43; max-height:calc(100% - 48px);}
+  .editor-guide-title {font-size:.98rem;}
+  .editor-guide-subtitle {font-size:.74rem; margin-bottom:10px;}
+  .editor-empty-guide p {margin-bottom:8px;}
+  .editor-guide-tip {display:none;}
+}
+@media (max-width:380px) {
+  .editor-empty-guide {left:46px; right:9px; font-size:.74rem;line-height:1.38;}
+  .editor-empty-guide p {margin-bottom:7px;}
+}
+@media print { .editor-empty-guide {display:none !important;} }
 </style><style id="paperStyle"></style></head><body>
 
 <div class="app-container">
@@ -908,7 +936,19 @@ body {height:100vh;height:100dvh;}
             </div>
             <div class="editor-grid" id="editorGrid" data-view="edit">
                 <div class="pane editor-pane" aria-label="Markdown editor">
-                    <div class="editor-host"><textarea id="editor" placeholder="Start writing here..." aria-label="Markdown source" spellcheck="true"></textarea></div>
+                    <div class="editor-host">
+                        <textarea id="editor" placeholder="Start writing here..." aria-label="Markdown source" spellcheck="true"></textarea>
+                        <div class="editor-empty-guide" id="editorEmptyGuide" aria-hidden="true" hidden>
+                            <div class="editor-guide-title">Welcome to Interactive Writer Pro</div>
+                            <div class="editor-guide-subtitle">A quick guide — start typing to dismiss.</div>
+                            <p><strong>Write Markdown.</strong> Try <code># Heading</code>, <code>**bold**</code>, <code>- List</code>, or use the formatting toolbar.</p>
+                            <p><strong>Preview.</strong> Switch between <b>Edit / Split / Preview</b> to see the formatted result.</p>
+                            <p><strong>Improve your writing.</strong> Click <b>✨ Analyze</b> for writing suggestions, or <b>Check grammar</b> for English spelling and grammar.</p>
+                            <p><strong>Export beautifully.</strong> Select a PDF <b>Style</b>, use <b>👁 Preview</b> to browse stationery templates, then click <b>📄 PDF</b>. You can also download a <code>.md</code> or <code>.txt</code> file.</p>
+                            <p><strong>Keep your draft.</strong> Click <b>💾 Save</b>, or switch on Auto-save in <b>⚙ Settings</b> (off by default).</p>
+                            <div class="editor-guide-tip">Tip: <kbd>Ctrl/Cmd + Space</kbd> for Markdown suggestions. English grammar checking needs internet on first use. This guide is not part of your document.</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="pane preview-pane" aria-label="Rendered Markdown preview">
                     <div class="preview-scroller"><article id="preview" class="markdown-body"></article></div>
@@ -15925,6 +15965,13 @@ const cm = CodeMirror.fromTextArea($('editor'), {
   'Tab':(ed)=>ed.somethingSelected()?ed.indentSelection('add'):ed.execCommand('insertSoftTab')
  }
 });
+
+// Placeholder only: never entered into CodeMirror, saved, analyzed or exported.
+const editorEmptyGuide = $('editorEmptyGuide');
+function syncEditorEmptyGuide(){
+  editorEmptyGuide.hidden = cm.getValue().length !== 0;
+}
+cm.on('change', syncEditorEmptyGuide);
 const starter = ''; // Match the original blank editor when no draft exists.
 const shortcuts = [
  {label:'Heading 1',text:'# ',triggers:['#']},
@@ -16513,5 +16560,6 @@ function initialize(){
  cm.refresh();
 }
 initialize();
+syncEditorEmptyGuide();
 </script>
 </body></html>
