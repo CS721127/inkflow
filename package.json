@@ -1,6 +1,6 @@
 {
   "name": "interactive-writer-pro",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Offline-first Markdown writer with MathJax, multi-file workspaces, repeatable A4 stationery PDF and Harper grammar",
   "scripts": {

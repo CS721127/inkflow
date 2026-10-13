@@ -625,7 +625,9 @@ $('exportStyle').addEventListener('change', () => { store.write('writer_pad_expo
 const stylePreviewDialog = $('stylePreviewDialog');
 const stylePreviewNames = {
  classic:'Plain', ruled:'Ruled paper', vintage:'Vintage letter',
- floral:'Floral letter', kawaii:'Cute cartoon', sky:'Sky & clouds'
+ floral:'Floral letter', kawaii:'Cute cartoon', sky:'Sky & clouds',
+ sakura:'Sakura blossom', botanical:'Sage botanical', grid:'Graph notebook',
+ coffee:'Cozy coffee', night:'Moonlit stars', geometric:'Pastel geometric'
 };
 function updateStylePreviewCards(){
  stylePreviewDialog.querySelectorAll('.style-preview-card').forEach(card=>{

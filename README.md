@@ -7,7 +7,7 @@ The **original UI** (editor on the left, Dashboard on the right), mobile layouts
 Requirements: Node.js 18+; a connection for the **one-time `npm install`** step.
 
 ```bash
-cd Interactive_Writer_Pro_PDF_Fixed
+cd Interactive_Writer_Pro_Expanded_Styles
 npm install
 npm start
 ```
@@ -25,7 +25,7 @@ If you already have Node.js, `npm start` works without `npm install`: the editor
 ## 2. Project tree
 
 ```text
-Interactive_Writer_Pro_PDF_Fixed/
+Interactive_Writer_Pro_Expanded_Styles/
 ├── index.html                        UI and markup
 ├── css/
 │   ├── app.css                       Original visual design and mobile CSS
@@ -34,9 +34,10 @@ Interactive_Writer_Pro_PDF_Fixed/
 │   ├── app.js                        App controller, views, exports, settings
 │   ├── analyzer.js                   Offline rule-based writing analysis
 │   ├── grammar.js                    Lazy-loaded local Harper adapter
-│   ├── stationery.js                 Letterhead SVG templates + thumbnails
+│   ├── stationery.js                 Six original SVG stationery templates + thumbnails
+│   ├── stationery-extra.js           Six additional vector stationery themes
 │   └── vendor/markdown-editor.bundle.js  Embedded CodeMirror and marked
-├── assets/stationery/previews/      Six preview images (WebP)
+├── assets/stationery/previews/      12 preview images (WebP)
 ├── vendor/harper/                   Harper JS/WASM/Worker runtime after npm install
 ├── scripts/
 │   ├── vendor-harper.mjs             npm postinstall copier
@@ -104,4 +105,19 @@ The old export used one `position:fixed` 210 × 297 mm illustration for the enti
 
 On mobile choose **PDF** → browser **Save as PDF**, and select **A4**, 100%/default scale and no additional margins when those options appear. On Safari/iOS the print/share panel may expose fewer controls; the browser or a physical printer can override the requested paper size. The fix has been tested with Chromium at desktop and 320–390px mobile viewports, but native iOS Safari print needs device confirmation.
 
-Regression test: `npm test`. Source is 100% client-side and all six stationery styles use the same pagination system. No additional dependency or CDN was added.
+Regression test: `npm test`. Source is 100% client-side and all twelve stationery styles use the same pagination system. No additional dependency or CDN was added.
+
+## 8. Six extra export styles (v1.3)
+
+The Style menu and Preview gallery now include **twelve** A4 styles in total. The six new original vector themes are:
+
+| Style | Appearance |
+|---|---|
+| Sakura blossom | Pale blush paper, delicate cherry blossoms and falling petals |
+| Sage botanical | Sage-green plant illustrations and double botanical border |
+| Graph notebook | Pale-blue five-millimetre grid, left binder holes and margin |
+| Cozy coffee | Warm cream letterhead, coffee beans and a cup in the footer |
+| Moonlit stars | Night-blue astronomy header/footer and small gold constellations |
+| Pastel geometric | Clean contemporary colored shapes and understated geometry |
+
+All six use `js/stationery-extra.js` plus source SVGs in `assets/stationery/art/`. The original six were not modified. The new preview thumbnails (`assets/stationery/previews/*.webp`) are generated locally by running `python3 scripts/generate-stationery-extras.py` (requires Python + Pillow + CairoSVG for regeneration; these packages are **not** needed by end users). The printing/export implementation is unchanged from v1.2: an independent vector illustration per physical A4 sheet with safe inner margins. `npm test` checks the available styles and assets; the actual long-document export was tested in Chromium at 390px mobile width and 1440px desktop width. Native Safari print remains device-dependent.

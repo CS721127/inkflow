@@ -9,7 +9,7 @@ const WriterPdfPages = (() => {
   const getMargins = style => {
     const fancy = !['classic','ruled'].includes(style);
     return {top:fancy?27:18, bottom:fancy?31:18,
-            left:style==='ruled'?33:(fancy?23:19),
+            left:['ruled','grid'].includes(style)?33:(fancy?23:19),
             right:style==='ruled'?18:(fancy?23:19)};
   };
 

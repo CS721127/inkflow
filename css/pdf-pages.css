@@ -82,6 +82,12 @@
 #print-area.pdf-paginated[data-stationery="floral"] .print-title {border-color:#e7c8d3;}
 #print-area.pdf-paginated[data-stationery="kawaii"] .print-title {border-color:#f6d3d9;}
 #print-area.pdf-paginated[data-stationery="sky"] .print-title {border-color:#d0e3f2;}
+#print-area.pdf-paginated[data-stationery="sakura"] .print-title {border-color:#eebdd0;}
+#print-area.pdf-paginated[data-stationery="botanical"] .print-title {border-color:#b3cba8;}
+#print-area.pdf-paginated[data-stationery="grid"] .print-title {border-color:#bfcfdd;}
+#print-area.pdf-paginated[data-stationery="coffee"] .print-title {border-color:#d7ad8b;}
+#print-area.pdf-paginated[data-stationery="night"] .print-title {border-color:#d4bd81;}
+#print-area.pdf-paginated[data-stationery="geometric"] .print-title {border-color:#b5c5d5;}
 #print-area.pdf-paginated .pdf-flow h1 {font-size:20pt;}
 #print-area.pdf-paginated .pdf-flow h2 {font-size:16pt;}
 #print-area.pdf-paginated .pdf-flow h3 {font-size:13pt;}
