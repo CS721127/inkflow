@@ -801,6 +801,36 @@ body {height:100vh;height:100dvh;}
  .autosave-row{padding:12px;}
 }
 @media print{.settings-dialog,.clear-menu{display:none!important;}}
+
+/* Additional analysis UI fits inside the original right-hand Dashboard. */
+.analysis-topline{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:.88rem;margin:0 0 11px;}
+.analysis-private{opacity:.6;font-size:.68rem;white-space:nowrap;}
+.analysis-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+.analysis-metric{display:flex;flex-direction:column;gap:2px;min-width:0;background:var(--stat-box-bg);border-radius:7px;padding:10px 8px;}
+.analysis-metric strong{font-size:1rem;font-weight:650;}
+.analysis-metric small{font-size:.7rem;opacity:.7;}
+.analysis-detail,.analysis-disclaimer{font-size:.73rem;line-height:1.45;opacity:.75;margin:10px 0 15px;}
+.analysis-disclaimer{font-size:.7rem;opacity:.67;border-top:1px solid var(--editor-border);padding-top:11px;}
+.analysis-filter-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:17px 0 12px;font-size:.83rem;}
+.analysis-filter{max-width:139px;min-width:0;padding:5px 6px;font-size:.75rem;}
+.analysis-issue{padding:12px 11px;margin-bottom:9px;border-left-color:var(--accent-color);}
+.analysis-issue-top{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;line-height:1.35;}
+.analysis-issue-top strong{font-size:.84rem;overflow-wrap:anywhere;}
+.analysis-priority{font-size:.66rem;opacity:.7;white-space:nowrap;padding-top:1px;}
+.analysis-advice{font-size:.78rem;line-height:1.5;margin:8px 0;}
+.analysis-excerpt{font-family:inherit;font-size:.74rem;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap;background:var(--stat-box-bg);border-radius:5px;padding:7px 8px;margin:8px 0;max-height:88px;overflow:hidden;}
+.analysis-jump{font-size:.72rem!important;padding:6px 9px!important;min-height:31px;max-width:100%;}
+.analysis-empty{font-size:.8rem;line-height:1.45;}
+.CodeMirror .analysis-locate-mark{background:rgba(255,170,0,.28);outline:1px solid rgba(255,170,0,.6);border-radius:2px;}
+@media(max-width:768px){
+ .analysis-metrics{grid-template-columns:repeat(4,minmax(0,1fr));}
+ .analysis-metric{padding:8px 6px;}
+ .analysis-metric strong{font-size:.95rem;}
+ .analysis-issue{padding:12px;}
+ .analysis-jump{min-height:39px;}
+}
+@media(max-width:380px){.analysis-metrics{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
 </style><style id="paperStyle"></style></head><body>
 
 <div class="app-container">
@@ -838,7 +868,7 @@ body {height:100vh;height:100dvh;}
 <button type="button" class="danger" id="clearStorageButton">🗑️ <span>Clear storage</span></button>
 </div>
 </div>
-<button id="analyzeButton">✨ <span>Analyze</span></button>
+<button id="analyzeButton" title="Analyze locally, no data sent">✨ <span>Analyze</span></button>
 </div>
 </div>
 <div class="editor-tools">
@@ -880,7 +910,7 @@ body {height:100vh;height:100dvh;}
 </div>
 </div>
 <h4>Recommendations</h4>
-<div id="recommendations">
+<div id="recommendations" aria-label="Writing analysis results">
 <p style="color: #888; font-style: italic; font-size: 0.9rem;">Analysis results will appear here.</p>
 </div>
 </div>
@@ -15600,6 +15630,178 @@ CodeMirror.defineMIME("text/x-markdown", "markdown");
 
 </script>
 <script>
+/* Interactive Writer Pro · local writing analysis engine
+ * No network calls, external APIs, storage, or dependencies.
+ * English-style checks are suggestions, not grammar/spelling verification.
+ * The source-offset contract allows a suggestion to select its exact Markdown span.
+ */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  if (root) root.WriterAnalyzer = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const englishWord = /[A-Za-z]+(?:['’\-][A-Za-z]+)*|\d+(?:\.\d+)?/g;
+  const hanCharacter = /\p{Script=Han}/gu;
+  const linePattern = /[^\n]*(?:\n|$)/g;
+  const fillerTerms = ['due to the fact that', 'at this point in time', 'in order to', 'kind of', 'sort of', 'a lot of', 'basically', 'literally', 'actually', 'really', 'very', 'just'];
+  const passiveRegex = /\b(?:am|is|are|was|were|be|been|being|get|gets|got|getting)\s+(?:(?:\w+ly|not)\s+)?(?:\w+\s+){0,2}(?:[a-z]+(?:ed|en)|known|shown|written|given|made|taken|built|seen|found|done|said|sent)\b/gi;
+  function countEnglish(text) { return (text.match(englishWord) || []).length; }
+  function countHan(text) { return (text.match(hanCharacter) || []).length; }
+  function mask(text) { return text.replace(/[^\r\n]/g, ' '); }
+  function stripMarkup(source) {
+    // Crucially, every character maintains its original index (including line breaks).
+    let text = String(source);
+    let fence = null;
+    let result = '';
+    const lineRx = new RegExp(linePattern.source, 'g');
+    let m;
+    while ((m = lineRx.exec(text)) && m[0]) {
+      const line = m[0], body = line.replace(/\r?\n$/, '');
+      const start = body.match(/^ {0,3}(`{3,}|~{3,})/);
+      if (fence) {
+        result += mask(line);
+        if (new RegExp('^ {0,3}' + (fence.char === '`' ? '`' : '~') + '{' + fence.len + ',}\\s*$').test(body)) fence = null;
+      } else if (start) {
+        fence = { char: start[1][0], len: start[1].length, index: m.index };
+        result += mask(line);
+      } else if (/^\s*\|.*\|\s*$/.test(body) || /^\s*(?:[-*_]\s*){3,}$/.test(body)) {
+        // Markdown tables and horizontal rules are not prose sentences.
+        result += mask(line);
+      } else {
+        result += line;
+      }
+    }
+    function hide(regex) { text = text.replace(regex, match => mask(match)); }
+    text = result;
+    hide(/`+[^`\n]*`+/g);                // inline code
+    const codeMasked = text;
+    hide(/<!--[^]*?-->/g);               // HTML comments
+    hide(/<[^>\n]+>/g);                  // inline HTML
+    // Keep visible link labels so writing metrics match what people read.
+    text = text.replace(/(!?)\[([^\]\n]*)\]\(([^\n)]*)\)/g, (full, image, label) =>
+      image ? mask(full) : ' ' + label + mask(full.slice(label.length + 1)));
+    hide(/https?:\/\/[^\s<>]+/g);       // bare URLs
+    text = text.replace(/^\s{0,3}(?:#{1,6}\s+|>\s*|[-*+]\s+|\d+[.)]\s+|[-*+] \[[ xX]\]\s+)/gm, x => mask(x));
+    // Keep the actual words, not the formatting delimiters.
+    text = text.replace(/(?:\*\*|__|~~)/g, x => mask(x));
+    return {text, codeMasked, unclosedFence: fence};
+  }
+  function cleanSnippet(text, index, length) {
+    const source = text.slice(Math.max(0, index), Math.min(text.length, index + Math.max(length, 1)));
+    const shortened = source.replace(/\s+/g, ' ').trim();
+    return shortened.length > 115 ? shortened.slice(0, 112) + '…' : shortened;
+  }
+  function analyze(source) {
+    const raw = String(source || '');
+    const normalized = stripMarkup(raw);
+    const prose = normalized.text;
+    const issues = [];
+    const counters = {};
+    function add(category, severity, title, detail, index, length, limit = 5) {
+      const key = title;
+      if ((counters[key] || 0) >= limit) return;
+      counters[key] = (counters[key] || 0) + 1;
+      const safeIndex = Math.min(Math.max(0, index || 0), raw.length);
+      issues.push({category, severity, title, detail, index: safeIndex, length: Math.max(0, length || 0), snippet: cleanSnippet(raw, safeIndex, length || 1)});
+    }
+    const paragraphs = [];
+    let current = null;
+    let lineNo = 0;
+    const headings = [];
+    let pending = null;
+    const rx = new RegExp(linePattern.source, 'g');
+    let match;
+    while ((match = rx.exec(prose)) && match[0]) {
+      const pLine = match[0], rLine = raw.slice(match.index, match.index + match[0].length);
+      const heading = rLine.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+      if (heading && !/^\s*$/.test(pLine)) headings.push({level: heading[1].length, index: match.index, title: heading[2].slice(0, 80)});
+      const candidate = pLine.replace(/\s+$/, '');
+      const isProse = /[A-Za-z\p{Script=Han}]/u.test(candidate) && !heading;
+      if (isProse) {
+        if (!current) current = {index: match.index, end: match.index + candidate.length};
+        else current.end = match.index + candidate.length;
+      } else if (current) { paragraphs.push(current);current = null; }
+      lineNo++;
+    }
+    if (current) paragraphs.push(current);
+    // Content with no full paragraphs (e.g. just one heading) still gets base stats.
+    const en = countEnglish(prose), han = countHan(prose);
+    const words = en + han; // Chinese uses Han characters as approximate word-like units.
+    const sentenceUnits = [];
+    for (const p of paragraphs) {
+      const block = prose.slice(p.index, p.end);
+      const sentenceRx = /[^.!?。！？]+(?:[.!?。！？]+|$)/g;
+      let sentence;
+      while ((sentence = sentenceRx.exec(block)) && sentence[0]) {
+        const head = (sentence[0].match(/^\s*/) || [''])[0].length;
+        const fragment = sentence[0].trim();
+        if (!fragment) continue;
+        const english = countEnglish(fragment), chinese = countHan(fragment);
+        if (!english && !chinese) continue;
+        const i = p.index + sentence.index + head;
+        sentenceUnits.push({index:i, length:sentence[0].trimEnd().length-head, english, chinese});
+        if (english >= 35) add('clarity','review','Long sentence',`${english} English words in one sentence. Consider splitting it into shorter statements.`,i,sentence[0].trimEnd().length-head,5);
+        else if (chinese >= 75) add('clarity','review','Long Chinese sentence',`${chinese} Chinese characters without a full stop. A shorter sentence may be easier to follow.`,i,sentence[0].trimEnd().length-head,5);
+      }
+      const blockEn = countEnglish(block), blockHan = countHan(block);
+      if (blockEn > 150 || blockHan > 240) add('clarity','review','Long paragraph',`This paragraph contains ${blockEn ? blockEn + ' English words' : ''}${blockEn && blockHan ? ' and ' : ''}${blockHan ? blockHan + ' Chinese characters' : ''}. Consider inserting a paragraph break.`,p.index,p.end-p.index,4);
+    }
+    // Style checks on prose only: code fences, links and URLs are masked above.
+    let same;
+    const dupRx = /\b([a-z]{2,})\s+\1\b/gi;
+    while ((same = dupRx.exec(prose))) add('style','important','Repeated word',`“${same[1]} ${same[1]}” may be a typo.`,same.index,same[0].length,5);
+    for (const phrase of fillerTerms) {
+      const phraseRe = new RegExp('\\b' + phrase.replace(/\s+/g, '\\s+') + '\\b','gi');
+      let hit, n = 0, first = null;
+      while ((hit=phraseRe.exec(prose))) {n++;if (!first) first=hit;}
+      if (first) add('style','note','Potential filler: '+phrase,`${n} occurrence${n > 1 ? 's' : ''}. Check whether the phrase adds meaning; context may justify keeping it.`,first.index,first[0].length,1);
+    }
+    let pass;
+    while ((pass=passiveRegex.exec(prose))) add('style','note','Possible passive voice','Passive constructions can be appropriate. Check whether naming the actor would make this sentence clearer.',pass.index,pass[0].length,4);
+    const emphatic = /[!?]{3,}/g;
+    let noisy;
+    while ((noisy=emphatic.exec(prose))) add('style','note','Repeated punctuation','Multiple exclamation or question marks may be distracting in formal writing.',noisy.index,noisy[0].length,3);
+    // Markdown checks use the raw source to retain exact selectable offsets.
+    if (normalized.unclosedFence) add('structure','important','Unclosed code block','Add a matching closing ``` or ~~~ line so subsequent Markdown renders correctly.',normalized.unclosedFence.index,3,1);
+    for (let h = 1; h < headings.length; h++) {
+      if (headings[h].level > headings[h - 1].level + 1) add('structure','review','Skipped heading level',`Heading goes from H${headings[h-1].level} to H${headings[h].level}. Consider using H${headings[h-1].level + 1} for a clearer outline.`,headings[h].index,headings[h].title.length+headings[h].level+1,4);
+    }
+    if (headings.length && !headings.some(h=>h.level===1)) add('structure','note','No H1 title','Your document uses headings but has no top-level # heading. Consider adding one if this is a standalone document.',headings[0].index,headings[0].title.length+headings[0].level+1,1);
+    if (words > 320 && !headings.length) add('structure','note','Consider section headings','Long documents are easier to scan with a few descriptive Markdown headings.',0,Math.min(raw.length,100),1);
+    const markdownLinks = /(!?)\[([^\]\n]*)\]\(([^)\n]*)\)/g;
+    let link;
+    while ((link = markdownLinks.exec(normalized.codeMasked))) {
+      if (link[1] === '!' && !link[2].trim()) add('structure','review','Image needs alt text','Describe the image between ![ and ] for readers who use screen readers.',link.index,link[0].length,4);
+      else if (link[1] !== '!' && (!link[2].trim() || !link[3].trim() || link[3].trim()==='#')) add('structure','review','Incomplete link','Check that both the link text and destination are present.',link.index,link[0].length,4);
+      else if (/example\.com|your-url|insert-link-here/i.test(link[3])) add('structure','note','Placeholder link','Replace the example URL before publishing or sharing.',link.index,link[0].length,4);
+    }
+    let todo;
+    const reminder = /\b(?:TODO|FIXME|TBD)\b/g;
+    while ((todo=reminder.exec(prose))) add('structure','note','Draft reminder found','Check that this placeholder has been handled before sharing the document.',todo.index,todo[0].length,4);
+    // Avoid overloading the original 300px-wide sidebar; report how many are displayed.
+    const priority = {important:0,review:1,note:2};
+    issues.sort((a,b)=>priority[a.severity]-priority[b.severity] || a.index-b.index);
+    const displayed = issues.slice(0, 28);
+    const checkedTasks = (raw.match(/^\s*[-*+]\s+\[[xX]\]\s/gm) || []).length;
+    const uncheckedTasks = (raw.match(/^\s*[-*+]\s+\[ \]\s/gm) || []).length;
+    const englishSentenceCount = sentenceUnits.filter(s=>s.english>0).length;
+    const meanSentenceWords = englishSentenceCount ? Math.round(sentenceUnits.reduce((a,s)=>a+(s.english>0?s.english:0),0)/englishSentenceCount) : 0;
+    const readingSeconds = en / 220 * 60 + han / 330 * 60;
+    let language = 'English';
+    if (han > 0 && en < 8) language = 'Chinese / CJK';
+    else if (han > 0 && en > 0) language = 'Mixed';
+    return {
+      stats: {words,en,han,characters:raw.length,sentences:sentenceUnits.length,paragraphs:paragraphs.length,headings:headings.length,readingMinutes:Math.max(1,Math.ceil(readingSeconds / 60)),meanSentenceWords,language,checkedTasks,uncheckedTasks},
+      issues:displayed, totalIssues:issues.length, omitted:Math.max(0, issues.length-displayed.length),
+      // The analysis is wholly local and intentionally limited to rule-based cues.
+      methodology:'Local rule-based suggestions only; not a grammar, meaning, or factual accuracy checker.'
+    };
+  }
+  return {analyze, stripMarkup};
+});
+</script>
+<script>
 'use strict';
 const $ = (id) => document.getElementById(id);
 const filenameInput = $('filenameInput');
@@ -15885,23 +16087,122 @@ function closeClearMenu(){
  $('clearMenu').hidden=true;
  $('clearButton').setAttribute('aria-expanded','false');
 }
-function analyzeText(){
- const text=cm.getValue();recBox.innerHTML='';
- if(!text.trim()){recBox.innerHTML='<p class="muted">Write something to analyze.</p>';return;}
- const content=text.replace(/^#{1,6}\s/gm,'').replace(/```[\s\S]*?```/g,'');
- const suggestions=[];
- const adverbs=(content.match(/\b\w+ly\b/gi)||[]).length;
- if(adverbs>5)suggestions.push({type:'bad',msg:`Found ${adverbs} possible adverbs. Consider more precise verbs.`});
- const passive=(content.match(/\b(?:am|is|are|was|were|be|been|being)\s+\w+ed\b/gi)||[]).length;
- if(passive)suggestions.push({type:'bad',msg:`Possible passive voice: ${passive} instance(s). Review where active voice may be clearer.`});
- const filler=['very','really','literally','basically','just','somewhat'];
- const found=filler.filter(w=>new RegExp('\\b'+w+'\\b','i').test(content));
- if(found.length)suggestions.push({type:'bad',msg:'Consider trimming filler words: '+found.join(', ')+'.'});
- if(text.length>500)suggestions.push({type:'good',msg:'Substantial draft written. Consider reviewing your headings and flow.'});
- if(!suggestions.length)suggestions.push({type:'good',msg:'No common style patterns flagged. Keep writing!'});
- for(const s of suggestions){const div=document.createElement('div');div.className='suggestion-card '+s.type;div.textContent=s.msg;recBox.appendChild(div);}
- showMessage('Analysis updated.');
+// Connect the pure rule-based analyzer to the existing sidebar and CodeMirror.
+// Nothing here writes to storage or sends data across the network.
+let analysisHasRun = false;
+let analysisReport = null;
+let analysisFilter = 'all';
+let analysisTimer = null;
+let locateMarker = null;
+const ANALYSIS_CATEGORIES = { all:'All', clarity:'Clarity', style:'Style', structure:'Structure' };
+const ANALYSIS_PRIORITY = { important:'Check', review:'Review', note:'Tip' };
+function analysisNode(tag, className, text) {
+ const element = document.createElement(tag);
+ if (className) element.className = className;
+ if (text !== undefined) element.textContent = String(text);
+ return element;
 }
+function focusFinding(finding) {
+ if (isMobile()) setView('edit', false);
+ else if (grid.dataset.view === 'preview') setView('edit', false);
+ const from = cm.posFromIndex(finding.index);
+ const to = cm.posFromIndex(finding.index + finding.length);
+ cm.focus();
+ cm.setSelection(from,to);
+ cm.scrollIntoView({from,to}, 110);
+ if (locateMarker) { locateMarker.clear();locateMarker=null; }
+ if (finding.length) {
+  locateMarker = cm.markText(from,to,{className:'analysis-locate-mark'});
+  const marker=locateMarker;
+  setTimeout(()=>{marker.clear();if(locateMarker===marker)locateMarker=null;},2200);
+ }
+ if (isMobile()) {
+  const host=document.querySelector('.editor-pane');
+  host?.scrollIntoView({behavior:'smooth',block:'center'});
+ }
+}
+function showAnalysis() {
+ if(!analysisReport) return;
+ const result = analysisReport;
+ const stats = result.stats;
+ recBox.replaceChildren();
+ const top = analysisNode('div','analysis-topline');
+ top.append(analysisNode('strong',null,'Draft overview'), analysisNode('span','analysis-private','⌁ On-device'));
+ recBox.append(top);
+ const metrics = analysisNode('div','analysis-metrics');
+ const statValues = [
+  [stats.readingMinutes+' min','Reading time'],
+  [String(stats.sentences),'Sentences'],
+  [String(stats.paragraphs),'Paragraphs'],
+  [String(stats.headings),'Headings']
+ ];
+ for(const [value,label] of statValues) {
+  const cell=analysisNode('div','analysis-metric');
+  cell.append(analysisNode('strong',null,value),analysisNode('small',null,label));
+  metrics.append(cell);
+ }
+ recBox.append(metrics);
+ const detail=analysisNode('p','analysis-detail');
+ detail.textContent = stats.language+(stats.meanSentenceWords?` · ~${stats.meanSentenceWords} English words per sentence`:'')+
+   (stats.uncheckedTasks?` · ${stats.uncheckedTasks} open task${stats.uncheckedTasks===1?'':'s'}`:'');
+ recBox.append(detail);
+ const toolbar=analysisNode('div','analysis-filter-row');
+ toolbar.append(analysisNode('strong',null,'Findings ('+result.totalIssues+')'));
+ const filter=analysisNode('select','analysis-filter');
+ filter.setAttribute('aria-label','Filter writing suggestions');
+ for(const [id,label] of Object.entries(ANALYSIS_CATEGORIES)){
+  const option=document.createElement('option');option.value=id;
+  const count=id==='all'?result.totalIssues:result.issues.filter(i=>i.category===id).length;
+  option.textContent=label+(id==='all'?'':' · '+count);
+  if(id===analysisFilter)option.selected=true;
+  filter.append(option);
+ }
+ filter.addEventListener('change',()=>{analysisFilter=filter.value;showAnalysis();});
+ toolbar.append(filter);recBox.append(toolbar);
+ const visible = result.issues.filter(i=>analysisFilter==='all'||i.category===analysisFilter);
+ if(!visible.length){
+  const positive=analysisNode('div','suggestion-card good analysis-empty',analysisFilter==='all'?'No common patterns flagged in this draft.':'No '+ANALYSIS_CATEGORIES[analysisFilter].toLowerCase()+' suggestions for this draft.');
+  recBox.append(positive);
+ }
+ for(const finding of visible){
+  const card=analysisNode('section','suggestion-card analysis-issue'+(finding.severity==='important'?' bad':''));
+  const row=analysisNode('div','analysis-issue-top');
+  row.append(analysisNode('strong',null,finding.title),analysisNode('span','analysis-priority',ANALYSIS_PRIORITY[finding.severity]));
+  card.append(row);
+  card.append(analysisNode('p','analysis-advice',finding.detail));
+  if(finding.snippet)card.append(analysisNode('div','analysis-excerpt','“'+finding.snippet+'”'));
+  const locate=analysisNode('button','secondary analysis-jump','↗ Locate in editor');
+  locate.type='button';
+  locate.setAttribute('aria-label','Locate '+finding.title+' in editor');
+  locate.addEventListener('click',()=>focusFinding(finding));
+  card.append(locate);recBox.append(card);
+ }
+ if(result.omitted)recBox.append(analysisNode('p','analysis-detail',result.omitted+' additional suggestions omitted to keep the list manageable.'));
+ recBox.append(analysisNode('p','analysis-disclaimer',result.methodology+' Chinese text is counted by characters for approximate reading time.'));
+}
+function analyzeText(silent = false){
+ const text=cm.getValue();
+ if(!text.trim()){
+  analysisHasRun=false;analysisReport=null;
+  recBox.replaceChildren(analysisNode('p','analysis-detail','Write something to analyze.'));
+  if(!silent)showMessage('Enter some text first.');
+  return;
+ }
+ analysisHasRun=true;
+ analysisReport=WriterAnalyzer.analyze(text);
+ showAnalysis();
+ if(!silent){
+  showMessage('Analysis complete · all checks run on this device.');
+  if(isMobile())document.querySelector('.sidebar')?.scrollIntoView({behavior:'smooth',block:'start'});
+ }
+}
+function scheduleAnalysisRefresh() {
+ if(!analysisHasRun) return;
+ clearTimeout(analysisTimer);
+ analysisTimer=setTimeout(()=>analyzeText(true),650);
+}
+cm.on('change',scheduleAnalysisRefresh);
+
 fileInput.addEventListener('change',async(event)=>{
  const file=event.target.files[0];if(!file)return;
  try {
