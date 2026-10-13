@@ -1,0 +1,28 @@
+/* Small additions only; matches the original light/dark controls. */
+.file-strip{display:flex;align-items:center;gap:8px;min-height:39px;margin:-3px 0 12px;border-bottom:1px solid var(--editor-border);padding-bottom:8px;min-width:0;}
+.file-strip-title{font-size:.75rem;font-weight:600;opacity:.65;flex:none;}
+.file-tabs{display:flex;align-items:center;gap:5px;flex:1;min-width:60px;overflow-x:auto;scrollbar-width:thin;padding:2px 0 4px;}
+.file-tab{display:flex;align-items:center;flex:none;max-width:210px;border:1px solid var(--editor-border);border-radius:5px;background:var(--editor-bg);}
+.file-tab .file-tab-select{max-width:166px;min-width:55px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;padding:6px 5px 6px 9px;min-height:29px;background:transparent;color:var(--text-color);font-size:.76rem;text-align:left;}
+.file-tab:has([aria-selected="true"]){border-color:var(--accent-color);box-shadow:inset 0 -2px 0 var(--accent-color);}
+.file-tab .file-tab-close{background:transparent;color:var(--text-color);padding:3px 6px;opacity:.65;font-size:1.05rem;}
+.file-tab .file-tab-close:hover{opacity:1;}
+.file-commands{display:flex;gap:5px;align-items:center;flex:none;}
+.file-commands button{font-size:.73rem;padding:6px 7px;min-height:31px;white-space:nowrap;}
+#fullscreenButton{margin-left:3px;white-space:nowrap;}
+.fullscreen-actions{display:none;}
+body.preview-fullscreen{overflow:hidden!important;}
+body.preview-fullscreen .preview-pane{display:flex!important;position:fixed!important;inset:0!important;z-index:8000;background:var(--editor-bg);border:none;border-radius:0;width:100%;height:100dvh;}
+body.preview-fullscreen .preview-pane .preview-scroller{height:100%;}
+body.preview-fullscreen #preview{max-width:980px;margin:auto;padding:45px 30px 90px;}
+body.preview-fullscreen .fullscreen-actions{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;flex:none;gap:10px;padding:10px 18px;background:var(--sidebar-bg);border-bottom:1px solid var(--editor-border);font-size:.87rem;}
+body.preview-fullscreen .fullscreen-actions button{min-height:36px;}
+.iwp-inline-math{display:inline-block;max-width:100%;vertical-align:baseline;}
+.iwp-display-math{display:block;overflow-x:auto;overflow-y:hidden;text-align:center;margin:1.2em 0;padding:8px 0;max-width:100%;}
+.iwp-math mjx-container{max-width:100%;}
+.iwp-display-math mjx-container{margin:0!important;}
+.iwp-math svg{max-width:none;}
+@media(max-width:1100px){.file-strip{flex-wrap:wrap;}.file-tabs{order:1;flex-basis:calc(100% - 52px);}.file-commands{order:2;width:100%;flex-wrap:wrap;}}
+@media(max-width:768px){#importFolderButton{display:none;}.file-strip{gap:5px;}.file-tabs{flex:1 1 100%;order:2;}.file-commands{order:3;gap:4px;}.file-commands button{min-height:35px;padding:7px 8px;}.file-tab .file-tab-select{min-height:35px;}.file-tab .file-tab-close{min-height:35px;}.editor-tools .segmented #fullscreenButton{font-size:.74rem;}.markdown-body .iwp-display-math{overflow-x:auto;}body.preview-fullscreen #preview{padding:25px 16px 75px;}}
+@media(max-width:420px){.file-commands{overflow-x:auto;flex-wrap:nowrap;}.editor-tools .segmented #fullscreenButton{min-height:37px;}}
+@media print{.file-strip,.fullscreen-actions{display:none!important;}body.preview-fullscreen .preview-pane{display:none!important;}#print-area .iwp-display-math{break-inside:avoid;overflow:visible!important;}#print-area .iwp-math svg{max-width:100%;}}

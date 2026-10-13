@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Interactive Writer Pro</title>
 <link rel="stylesheet" href="css/editor.css">
-<link rel="stylesheet" href="css/app.css"><style id="paperStyle"></style></head><body>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/new-features.css"><style id="paperStyle"></style></head><body>
 
 <div class="app-container">
 <div class="main-content">
@@ -12,7 +13,7 @@
 <button class="secondary" id="themeButton" title="Toggle theme" style="padding: 8px;">🌓</button>
 </div>
 <div class="toolbar">
-<input accept=".txt,.md" id="fileInput" type="file"/>
+<input accept=".txt,.md" id="fileInput" type="file" multiple/>
 <button class="secondary" id="importButton">📂 <span>Import</span></button>
 <button class="secondary" id="saveButton" title="Save locally (Ctrl/Cmd+S)">💾 <span>Save</span></button>
 <select id="exportFormat">
@@ -40,6 +41,19 @@
 <button id="analyzeButton" title="Analyze locally, no data sent">✨ <span>Analyze</span></button>
 </div>
 </div>
+<section class="file-strip" aria-label="Local Markdown files">
+  <span class="file-strip-title">Files</span>
+  <div id="fileTabs" class="file-tabs" role="tablist" aria-label="Open files"></div>
+  <div class="file-commands">
+    <button type="button" class="secondary" id="newFileButton" title="New blank file">＋ New</button>
+    <button type="button" class="secondary" id="addFilesButton" title="Import multiple Markdown files">＋ Open</button>
+    <button type="button" class="secondary" id="importFolderButton" title="Import Markdown files from a local folder (desktop browsers)">Folder</button>
+    <button type="button" class="secondary" id="downloadWorkspaceButton" title="Download all open files as one workspace JSON">↓ Workspace</button>
+    <button type="button" class="secondary" id="openWorkspaceButton" title="Restore a workspace JSON from disk">↑ Workspace</button>
+  </div>
+  <input id="folderInput" type="file" webkitdirectory directory multiple hidden>
+  <input id="workspaceInput" type="file" accept=".json,.iwp" hidden>
+</section>
 <div class="editor-tools">
                 <div class="format-toolbar" role="toolbar" aria-label="Markdown formatting">
                     <button type="button" class="secondary" data-insert="heading" title="Heading">H₂</button>
@@ -49,11 +63,14 @@
                     <button type="button" class="secondary" data-insert="code" title="Inline code">&lt;/&gt;</button>
                     <button type="button" class="secondary" data-insert="list" title="List">☷</button>
                     <button type="button" class="secondary" data-insert="task" title="Task list">☑</button>
+                    <button type="button" class="secondary" data-insert="math" title="Insert inline math ($...$)">∑</button>
+                    <button type="button" class="secondary" data-insert="mathBlock" title="Insert display equation ($$...$$)">∑²</button>
                 </div>
                 <div class="segmented" role="group" aria-label="Editor view">
                     <button type="button" class="secondary" data-view="edit" aria-pressed="true">Edit</button>
                     <button type="button" class="secondary" data-view="split" aria-pressed="false">Split</button>
                     <button type="button" class="secondary" data-view="preview" aria-pressed="false">Preview</button>
+                    <button type="button" class="secondary" id="fullscreenButton" title="Full-screen Markdown preview (Esc to close)">⛶ Fullscreen</button>
                 </div>
             </div>
             <div class="editor-grid" id="editorGrid" data-view="edit">
@@ -64,15 +81,16 @@
                             <div class="editor-guide-title">Welcome to Interactive Writer Pro</div>
                             <div class="editor-guide-subtitle">A quick guide — start typing to dismiss.</div>
                             <p><strong>Write Markdown.</strong> Try <code># Heading</code>, <code>**bold**</code>, <code>- List</code>, or use the formatting toolbar.</p>
-                            <p><strong>Preview.</strong> Switch between <b>Edit / Split / Preview</b> to see the formatted result.</p>
+                            <p><strong>Preview &amp; math.</strong> Use <b>Edit / Split / Preview / ⛶ Fullscreen</b>. Write inline <code>$x^2$</code> or a standalone <code>$$...$$</code> formula.</p>
                             <p><strong>Improve your writing.</strong> Click <b>✨ Analyze</b> for writing suggestions, or <b>Check grammar</b> for English spelling and grammar.</p>
                             <p><strong>Export beautifully.</strong> Select a PDF <b>Style</b>, use <b>👁 Preview</b> to browse stationery templates, then click <b>📄 PDF</b>. You can also download a <code>.md</code> or <code>.txt</code> file.</p>
-                            <p><strong>Keep your draft.</strong> Click <b>💾 Save</b>, or switch on Auto-save in <b>⚙ Settings</b> (off by default).</p>
+                            <p><strong>Work with files.</strong> Open several local <code>.md</code> files, switch tabs, and export or restore a workspace. Click <b>💾 Save</b> to save this workspace locally (auto-save is off by default).</p>
                             <div class="editor-guide-tip">Tip: <kbd>Ctrl/Cmd + Space</kbd> for Markdown suggestions. Grammar Check uses locally installed Harper; no document uploads. This guide is not part of your document.</div>
                         </div>
                     </div>
                 </div>
                 <div class="pane preview-pane" aria-label="Rendered Markdown preview">
+                    <div class="fullscreen-actions"><span>Markdown Preview</span><button type="button" class="secondary" id="exitFullscreenButton" title="Close full-screen preview">✕ Close</button></div>
                     <div class="preview-scroller"><article id="preview" class="markdown-body"></article></div>
                 </div>
             </div>
@@ -103,7 +121,7 @@
     <button class="secondary" id="closeSettings" type="button" aria-label="Close settings">✕</button>
   </div>
   <label class="autosave-row" for="autosaveToggle">
-    <span class="autosave-copy"><strong>Auto-save to this device</strong><small>Off by default. When off, edits stay in this tab until you click Save. Download and PDF export still work normally.</small></span>
+    <span class="autosave-copy"><strong>Auto-save to this device</strong><small>Off by default. Save stores all open files as a local workspace; without auto-save, your files remain in browser memory until you save or download them.</small></span>
     <input id="autosaveToggle" type="checkbox" role="switch" aria-label="Automatically save drafts on this device">
   </label>
   <div class="grammar-setting-row">
@@ -116,7 +134,7 @@
   </select>
 </div>
 <p class="settings-note">Grammar Check uses local Harper files (installed once with npm install). Your writing stays on-device; Writing Analysis works without Harper. Save controls remain unchanged.</p>
-<p class="settings-note">The Save button always saves a local draft. Use Clear → Clear storage to delete locally saved data.</p>
+<p class="settings-note">The Save button saves the entire open workspace to browser storage. Use ↓ Workspace to download a portable JSON backup. Clear → Clear storage deletes saved local data, without closing your current files.</p>
 </dialog>
 
 <dialog id="stylePreviewDialog" class="style-preview-dialog" aria-labelledby="stylePreviewTitle">
@@ -135,5 +153,7 @@
 <script src="js/analyzer.js"></script>
 <script src="js/grammar.js"></script>
 <script src="js/stationery.js"></script>
+<script src="js/math.js"></script>
+<script src="js/workspace.js"></script>
 <script src="js/app.js"></script>
 </body></html>

@@ -74,3 +74,24 @@ npm run package:offline  # create an offline ZIP after installing Harper
 Do not double-click `index.html` as `file://` when using modules, Web Workers or WASM: modern browser security rules prevent reliable loading. Use the localhost server above. On mobile, serve with a LAN-accessible static host (or deploy to any static host); `scripts/serve.mjs` deliberately listens only on 127.0.0.1 for safety.
 
 Harper is not a replacement for human proofreading and currently focuses on English.
+
+
+## 6. New in v1.1 — Math, fullscreen and local multi-file workspace
+
+- **Offline LaTeX maths:** Bundled **MathJax** (Apache-2.0), with `$x^2$` or `\(x^2\)` inline, `$$` on separate lines or `\[...\]` for display equations. The first equation lazily loads MathJax from `vendor/mathjax/` without contacting a CDN. Maths also appear in printed/PDF Markdown. Use the ∑ buttons in the formatting toolbar.
+- **Full-screen preview:** Click **⛶ Fullscreen** near Edit/Split/Preview, and **Esc** or **✕ Close** to return. Uses an overlay for Safari/iOS support, no Fullscreen API permission required.
+- **Local multi-file:** Import multiple `.md`, `.markdown`, `.txt` files, or select **Folder** on desktop to load Markdown files from a folder. The file strip allows switching and closing documents. Changes in each tab remain in memory during the session; auto-save still defaults to OFF. Download downloads the **current file**, while **↓ Workspace** exports a JSON backup containing all open files, and **↑ Workspace** restores it. The normal **Save** button saves the whole workspace in browser LocalStorage.
+- Relative image paths cannot be read from the user's disk without permission; reference images served with the site or use public URLs. **Folder** import does not grant ongoing disk access and does not write files back to the directory. Changes are exported via downloads.
+- For multi-file sessions, memory-only tabs do not persist across reloads unless you clicked **Save**, enabled auto-save, or downloaded a workspace backup.
+- **Grammar runtime:** Harper still requires the initial `npm install` as explained above. MathJax, unlike Harper, is included in the ZIP already.
+
+Example:
+
+```markdown
+# Equations
+Inline: $E=mc^2$
+
+$$
+\int_0^1 x^2\, dx=\frac13
+$$
+```

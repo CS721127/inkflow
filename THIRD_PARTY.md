@@ -4,3 +4,5 @@
 - Harper (`harper.js`, Apache-2.0): optional English grammar engine installed with `npm install`, then copied into `vendor/harper`. See https://github.com/Automattic/harper. No Harper binaries were downloaded or copied into this initial ZIP.
 
 This package must not be described as bundling Harper until `npm install` successfully populates `vendor/harper/`.
+
+- **MathJax 3.2.1** — Apache License 2.0; complete source license in `vendor/mathjax/LICENSE.txt`. Bundled local TeX-to-SVG component and TeX font data. https://github.com/mathjax/MathJax-src
