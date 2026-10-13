@@ -765,6 +765,42 @@ body {height:100vh;height:100dvh;}
  .style-preview-header p {font-size:.76rem;}
 }
 @media print { .style-preview-dialog {display:none!important;} }
+
+/* A compact settings panel and two independent clear options, in the original theme. */
+.settings-dialog {
+ width:min(450px, calc(100vw - 28px));max-height:calc(100dvh - 24px);
+ margin:auto; padding:20px; border-radius:12px; overflow:auto;
+ background:var(--sidebar-bg);color:var(--text-color);
+ border:1px solid var(--editor-border); box-shadow:0 18px 55px rgba(0,0,0,.22);
+}
+.settings-dialog::backdrop {background:rgba(15,14,22,.53);}
+.autosave-row {display:flex;gap:15px;align-items:center;justify-content:space-between;cursor:pointer;
+ border:1px solid var(--editor-border);border-radius:8px;background:var(--editor-bg);padding:15px;}
+.autosave-copy {display:flex;flex-direction:column;gap:6px;min-width:0;}
+.autosave-copy strong{font-size:.9rem;}
+.autosave-copy small,.settings-note {opacity:.73;font-size:.8rem;line-height:1.55;}
+.settings-note{margin:13px 0 0;}
+#autosaveToggle{appearance:none;-webkit-appearance:none;position:relative;flex:0 0 auto;
+ width:41px;height:24px;border:1px solid var(--editor-border);border-radius:30px;
+ background:#aaa;cursor:pointer;transition:background-color .15s;}
+#autosaveToggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;
+ border-radius:100%;background:white;box-shadow:0 1px 3px #0003;transition:transform .15s;}
+#autosaveToggle:checked{background:var(--accent-color);}
+#autosaveToggle:checked::after{transform:translateX(17px);}
+#autosaveToggle:focus-visible{outline:2px solid var(--accent-color);outline-offset:3px;}
+.clear-actions{position:relative;display:inline-flex;min-width:0;}
+.clear-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:3000;
+ min-width:210px;padding:7px;display:grid;gap:5px;
+ border:1px solid var(--editor-border);border-radius:9px;
+ background:var(--sidebar-bg);box-shadow:0 9px 24px rgba(0,0,0,.17);}
+.clear-menu[hidden]{display:none!important;}
+.clear-menu button{width:100%;justify-content:flex-start;min-height:37px;white-space:nowrap;}
+@media (max-width:420px){
+ .clear-menu button span{display:inline!important;}
+ .settings-dialog{padding:14px;}
+ .autosave-row{padding:12px;}
+}
+@media print{.settings-dialog,.clear-menu{display:none!important;}}
 </style><style id="paperStyle"></style></head><body>
 
 <div class="app-container">
@@ -773,7 +809,8 @@ body {height:100vh;height:100dvh;}
 <div class="top-row">
 <input id="filenameInput" title="Click to rename" type="text" value="Untitled Document"/>
                     <span id="saveStatus" class="save-status" aria-live="polite">Ready</span>
-<button class="secondary" id="themeButton" title="Toggle theme" style="padding: 8px; margin-left: auto;">🌓</button>
+<button class="secondary" id="settingsButton" type="button" title="Settings" aria-label="Settings" aria-haspopup="dialog" aria-controls="settingsDialog" style="padding:8px; margin-left:auto;">⚙️</button>
+<button class="secondary" id="themeButton" title="Toggle theme" style="padding: 8px;">🌓</button>
 </div>
 <div class="toolbar">
 <input accept=".txt,.md" id="fileInput" type="file"/>
@@ -794,7 +831,13 @@ body {height:100vh;height:100dvh;}
 <option value="sky">Style: Sky &amp; clouds</option>
 </select>
 <button class="secondary" id="stylePreviewButton" type="button" aria-haspopup="dialog" aria-controls="stylePreviewDialog" title="View PDF style samples">👁 <span>Preview</span></button>
-<button class="danger" id="clearButton">🗑️ <span>Clear</span></button>
+<div class="clear-actions" id="clearActions">
+<button class="danger" id="clearButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="clearMenu">🗑️ <span>Clear</span> ▾</button>
+<div class="clear-menu" id="clearMenu" hidden role="group" aria-label="Clear options">
+<button type="button" class="secondary" id="clearCanvasButton">📝 <span>Clear canvas</span></button>
+<button type="button" class="danger" id="clearStorageButton">🗑️ <span>Clear storage</span></button>
+</div>
+</div>
 <button id="analyzeButton">✨ <span>Analyze</span></button>
 </div>
 </div>
@@ -842,6 +885,18 @@ body {height:100vh;height:100dvh;}
 </div>
 </div>
 </div>
+
+<dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
+  <div class="style-preview-header">
+    <div><h3 id="settingsTitle">Settings</h3><p>Control how this writer saves your work.</p></div>
+    <button class="secondary" id="closeSettings" type="button" aria-label="Close settings">✕</button>
+  </div>
+  <label class="autosave-row" for="autosaveToggle">
+    <span class="autosave-copy"><strong>Auto-save to this device</strong><small>Off by default. When off, edits stay in this tab until you click Save. Download and PDF export still work normally.</small></span>
+    <input id="autosaveToggle" type="checkbox" role="switch" aria-label="Automatically save drafts on this device">
+  </label>
+  <p class="settings-note">The Save button always saves a local draft. Use Clear → Clear storage to delete locally saved data.</p>
+</dialog>
 
 <dialog id="stylePreviewDialog" class="style-preview-dialog" aria-labelledby="stylePreviewTitle">
   <div class="style-preview-header">
@@ -15701,13 +15756,13 @@ function updatePreview(){
  lastRenderedText=text;
  preview.innerHTML=text.trim()?renderMarkdown(text):'<p class="empty-preview">Your rendered Markdown appears here.</p>';
 }
-function setView(view){
+function setView(view,persist=true){
  if(isMobile() && view==='split')view='edit';
  grid.dataset.view=view;
  document.querySelectorAll('[data-view]').forEach(button=>{
   if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.view===view));
  });
- store.write('writer_pad_view',view);
+ if(persist)store.write('writer_pad_view',view);
  if(view!=='edit') updatePreview();
  requestAnimationFrame(()=>cm.refresh());
 }
@@ -15722,22 +15777,31 @@ function showMessage(message){
  const toast=document.createElement('div');toast.className='toast';toast.setAttribute('role','status');toast.textContent=message;document.body.appendChild(toast);
  setTimeout(()=>toast.remove(),2500);
 }
+let autosaveTimer,previewTimer;
+let autoSaveEnabled = store.read('writer_pad_autosave') === 'true';
+let initializing = true;
+let suppressAutoSave = false;
 function saveData(manual=false){
+ clearTimeout(autosaveTimer);
  const a=store.write('writer_pad_text',cm.getValue());
  const b=store.write('writer_pad_name',filenameInput.value);
  saveStatus.textContent=a&&b?'Saved locally':'Unable to save locally';
  if(manual)showMessage(a&&b?'Saved to this device.':'Storage unavailable — download your file to keep it.');
 }
-let autosaveTimer,previewTimer;
+function queueAutoSave(){
+ clearTimeout(autosaveTimer);
+ if(initializing || suppressAutoSave)return;
+ if(!autoSaveEnabled){saveStatus.textContent='Unsaved · autosave off';return;}
+ saveStatus.textContent='Saving…';
+ autosaveTimer=setTimeout(()=>saveData(false),650);
+}
 function onEdit(){
- updateStats();saveStatus.textContent='Saving…';
- clearTimeout(autosaveTimer); autosaveTimer=setTimeout(()=>saveData(false),650);
- clearTimeout(previewTimer); previewTimer=setTimeout(updatePreview,130);
+ updateStats();
+ queueAutoSave();
+ clearTimeout(previewTimer);previewTimer=setTimeout(updatePreview,130);
 }
 cm.on('change',onEdit);
-filenameInput.addEventListener('input',()=>{
- saveStatus.textContent='Saving…';clearTimeout(autosaveTimer);autosaveTimer=setTimeout(()=>saveData(false),650);
-});
+filenameInput.addEventListener('input',queueAutoSave);
 function downloadFile(){
  const format=$('exportFormat').value;
  const name=(filenameInput.value.trim()||'Untitled Document').replace(/[\\/<>:"|?*\u0000-\u001f]/g,'_').replace(/\.(md|txt)$/i,'');
@@ -15795,10 +15859,31 @@ async function exportPDF(){
  window.print();
 }
 function clearEditor(){
- if(!confirm('Clear the current document? Your saved draft will also be cleared.'))return;
- cm.setValue('');store.remove('writer_pad_text');filenameInput.value='Untitled Document';
- store.remove('writer_pad_name');saveData();
- cm.focus();showMessage('Document cleared.');
+ closeClearMenu();
+ if(!cm.getValue().trim()) {showMessage('Canvas is already blank.');return;}
+ if(!confirm('Clear the current canvas? Locally saved drafts will be kept.'))return;
+ clearTimeout(autosaveTimer);
+ suppressAutoSave=true;
+ try {cm.setValue('');}finally{suppressAutoSave=false;}
+ clearTimeout(autosaveTimer);
+ saveStatus.textContent='Blank canvas · not saved';
+ cm.focus();showMessage('Canvas cleared. Saved local draft was kept.');
+}
+function clearStorage(){
+ closeClearMenu();
+ if(!confirm('Delete this writer’s locally saved draft and settings from this browser? The text currently in your editor will stay open. This cannot be undone.'))return;
+ clearTimeout(autosaveTimer);
+ try {
+  for(const key of Object.keys(localStorage))if(key.startsWith('writer_pad_'))localStorage.removeItem(key);
+ }catch(error){showMessage('Cannot clear browser storage.');return;}
+ autoSaveEnabled=false;
+ $('autosaveToggle').checked=false;
+ saveStatus.textContent='Storage cleared · autosave off';
+ showMessage('Local storage cleared. Current canvas remains open.');
+}
+function closeClearMenu(){
+ $('clearMenu').hidden=true;
+ $('clearButton').setAttribute('aria-expanded','false');
 }
 function analyzeText(){
  const text=cm.getValue();recBox.innerHTML='';
@@ -15822,7 +15907,7 @@ fileInput.addEventListener('change',async(event)=>{
  try {
   const text=await file.text();
   if(cm.getValue().trim() && !confirm('Replace the current document with "'+file.name+'"?'))return;
-  filenameInput.value=file.name.replace(/\.(txt|md)$/i,'');cm.setValue(text);saveData();setView('edit');cm.focus();showMessage('Imported '+file.name);
+  filenameInput.value=file.name.replace(/\.(txt|md)$/i,'');cm.setValue(text);setView('edit');cm.focus();showMessage('Imported '+file.name+(autoSaveEnabled?'':' · not saved locally'));
  }catch(error){showMessage('Unable to read the selected file.');console.error(error);}
  finally{fileInput.value='';}
 });
@@ -15877,7 +15962,43 @@ stylePreviewDialog.addEventListener('click',(event)=>{
 });
 stylePreviewDialog.addEventListener('close',()=>{ $('stylePreviewButton').focus(); });
 
-$('clearButton').addEventListener('click',clearEditor);
+$('clearButton').addEventListener('click',(event)=>{
+ event.stopPropagation();
+ const menu=$('clearMenu');menu.hidden=!menu.hidden;
+ $('clearButton').setAttribute('aria-expanded',String(!menu.hidden));
+});
+$('clearMenu').addEventListener('click',event=>event.stopPropagation());
+$('clearCanvasButton').addEventListener('click',clearEditor);
+$('clearStorageButton').addEventListener('click',clearStorage);
+document.addEventListener('click',(event)=>{
+ if(!$('clearActions').contains(event.target))closeClearMenu();
+});
+document.addEventListener('keydown',(event)=>{
+ if(event.key==='Escape')closeClearMenu();
+});
+const settingsDialog=$('settingsDialog');
+$('settingsButton').addEventListener('click',()=>{
+ $('autosaveToggle').checked=autoSaveEnabled;
+ closeClearMenu();
+ settingsDialog.showModal();
+});
+$('closeSettings').addEventListener('click',()=>settingsDialog.close());
+settingsDialog.addEventListener('click',(event)=>{
+ if(event.target===settingsDialog)settingsDialog.close();
+});
+settingsDialog.addEventListener('close',()=>$('settingsButton').focus());
+$('autosaveToggle').addEventListener('change',event=>{
+ autoSaveEnabled=event.target.checked;
+ store.write('writer_pad_autosave',String(autoSaveEnabled));
+ clearTimeout(autosaveTimer);
+ if(autoSaveEnabled){
+  saveStatus.textContent='Saving…';
+  autosaveTimer=setTimeout(()=>saveData(false),200);
+ }else{
+  saveStatus.textContent='Autosave off';
+ }
+ showMessage('Auto-save '+(autoSaveEnabled?'enabled':'disabled'));
+});
 $('analyzeButton').addEventListener('click',analyzeText);
 $('themeButton').addEventListener('click',()=>{
  document.body.classList.toggle('dark-mode');store.write('writer_pad_theme',document.body.classList.contains('dark-mode')?'dark':'light');cm.refresh();
@@ -15893,15 +16014,18 @@ window.addEventListener('resize',()=>{
  cm.refresh();
 });
 function initialize(){
+ initializing=true;
  const savedText=store.read('writer_pad_text');
  const savedName=store.read('writer_pad_name');
  if(savedText!==null)cm.setValue(savedText);else cm.setValue(starter);
  if(savedName!==null)filenameInput.value=savedName;
  if(store.read('writer_pad_theme')==='dark')document.body.classList.add('dark-mode');
  if(store.read('writer_pad_export_style') && $('exportStyle').querySelector('[value="'+store.read('writer_pad_export_style')+'"]')) $('exportStyle').value=store.read('writer_pad_export_style');
- setView(isMobile()?'edit':(store.read('writer_pad_view')||'edit'));
+ setView(isMobile()?'edit':(store.read('writer_pad_view')||'edit'),false);
  updatePreview();updateStats();
- saveStatus.textContent=savedText!==null?'Draft restored':'Ready · autosave on';
+ saveStatus.textContent=savedText!==null?'Draft restored · '+(autoSaveEnabled?'autosave on':'autosave off'):(autoSaveEnabled?'Ready · autosave on':'Ready · autosave off');
+ $('autosaveToggle').checked=autoSaveEnabled;
+ initializing=false;
  cm.refresh();
 }
 initialize();
