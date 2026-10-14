@@ -168,7 +168,6 @@ function updatePreview(){
  if(WriterMath.mount(preview))WriterMath.typeset(preview);
 }
 function setView(view,persist=true){
- if(isMobile() && view==='split')view='edit';
  grid.dataset.view=view;
  document.querySelectorAll('[data-view]').forEach(button=>{
   if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.view===view));
@@ -726,7 +725,7 @@ window.addEventListener('keydown',(event)=>{
 });
 let wasMobile=isMobile();
 window.addEventListener('resize',()=>{
- const now=isMobile();if(now!==wasMobile){wasMobile=now;if(now&&grid.dataset.view==='split')setView('edit');}
+ const now=isMobile();if(now!==wasMobile){wasMobile=now;}
  cm.refresh();
 });
 function initialize(){

@@ -1,110 +1,106 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>InkFlow — Markdown Writer</title>
-<link rel="stylesheet" href="css/editor.css">
-<link rel="stylesheet" href="css/app.css">
-<link rel="stylesheet" href="css/new-features.css">
-<link rel="stylesheet" href="css/pdf-pages.css"><style id="paperStyle"></style></head><body>
+<!DOCTYPE html>
 
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>InkFlow — Markdown Workspace</title>
+<link href="css/editor.css" rel="stylesheet"/>
+<link href="css/app.css" rel="stylesheet"/>
+<link href="css/new-features.css" rel="stylesheet"/>
+<link href="css/pdf-pages.css" rel="stylesheet"/><style id="paperStyle"></style><link href="css/ui-chatgpt.css" rel="stylesheet"/><link href="css/ui-polish.css" rel="stylesheet"/></head><body>
 <div class="app-container">
 <div class="main-content">
 <div class="header-section">
 <div class="top-row">
+<div class="inkflow-brand" title="InkFlow">InkFlow<span class="brand-mark"></span></div>
 <input id="filenameInput" title="Click to rename" type="text" value="Untitled Document"/>
-                    <span id="saveStatus" class="save-status" aria-live="polite">Ready</span>
-<button class="secondary" id="settingsButton" type="button" title="Settings" aria-label="Settings" aria-haspopup="dialog" aria-controls="settingsDialog" style="padding:8px; margin-left:auto;">⚙️</button>
-<button class="secondary" id="themeButton" title="Toggle theme" style="padding: 8px;">🌓</button>
+<span aria-live="polite" class="save-status" id="saveStatus">Ready</span>
+<button aria-controls="writingDashboard" aria-expanded="false" aria-label="Toggle writing dashboard" class="secondary" id="dashboardToggle" type="button"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M3.5 3.5h7v7h-7zM13.5 3.5h7v4h-7zM13.5 10.5h7v10h-7zM3.5 13.5h7v7h-7z"></path></svg><span class="ui-button-label">Dashboard</span></button>
+<button aria-controls="settingsDialog" aria-haspopup="dialog" aria-label="Settings" class="secondary" id="settingsButton" style="padding:8px; margin-left:auto;" title="Settings" type="button"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 7h16M4 17h16M9 4v6M15 14v6"></path></svg><span class="ui-button-label">Settings</span></button>
+<button aria-label="Toggle light and dark appearance" class="secondary" id="themeButton" style="padding: 8px;" title="Toggle theme"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M20.5 13.1A8.5 8.5 0 0 1 10.9 3.5a8.6 8.6 0 1 0 9.6 9.6Z"></path></svg><span class="ui-button-label">Theme</span></button>
 </div>
-<div class="toolbar">
-<input accept=".txt,.md" id="fileInput" type="file" multiple/>
-<button class="secondary" id="importButton">📂 <span>Import</span></button>
-<button class="secondary" id="saveButton" title="Save locally (Ctrl/Cmd+S)">💾 <span>Save</span></button>
+<div class="toolbar" id="mainToolbar">
+<input accept=".txt,.md" id="fileInput" multiple="" type="file"/>
+<button class="secondary" id="importButton"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 7V5.5A1.5 1.5 0 0 1 5.5 4H10l2 2h6.5A1.5 1.5 0 0 1 20 7.5V9M4 10h16l-2 9H6z"></path></svg><span class="ui-button-label">Open files</span></button>
+<button class="secondary" id="saveButton" title="Save locally (Ctrl/Cmd+S)"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M5 3.5h12l2.5 2.5v14.5h-15V3.5ZM8 3.5v6h9v-6M8 20.5v-7h9v7"></path></svg><span class="ui-button-label">Save</span></button>
 <select id="exportFormat">
 <option value="txt">.txt (Plain Text)</option>
 <option value="md">.md (Markdown)</option>
 </select>
-<button class="secondary" id="downloadButton">📥 <span>Download</span></button>
-<button class="secondary" id="pdfButton">📄 <span>PDF</span></button>
-                    <select id="exportStyle" aria-label="PDF stationery style" title="PDF paper style">
-<option value="classic">Style: Plain</option>
-<option value="ruled">Style: Ruled paper</option>
-<option value="vintage">Style: Vintage letter</option>
-<option value="floral">Style: Floral letter</option>
-<option value="kawaii">Style: Cute cartoon</option>
-<option value="sky">Style: Sky &amp; clouds</option>
-<option value="sakura">Style: Sakura blossom</option>
-<option value="botanical">Style: Sage botanical</option>
-<option value="grid">Style: Graph notebook</option>
-<option value="coffee">Style: Cozy coffee</option>
-<option value="night">Style: Moonlit stars</option>
-<option value="geometric">Style: Pastel geometric</option>
+<button class="secondary" id="downloadButton"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"></path></svg><span class="ui-button-label">Download</span></button>
+<button class="secondary" id="pdfButton"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M7 3.5h7l4 4V21H6V3.5h1ZM14 3.5V8h4M9 12h6M9 15h6"></path></svg><span class="ui-button-label">Export PDF</span></button>
+<select aria-label="PDF stationery style" id="exportStyle" title="PDF paper style">
+<option value="classic">Plain</option>
+<option value="ruled">Ruled paper</option>
+<option value="vintage">Vintage letter</option>
+<option value="floral">Floral letter</option>
+<option value="kawaii">Cute cartoon</option>
+<option value="sky">Sky &amp; clouds</option>
+<option value="sakura">Sakura blossom</option>
+<option value="botanical">Sage botanical</option>
+<option value="grid">Graph notebook</option>
+<option value="coffee">Cozy coffee</option>
+<option value="night">Moonlit stars</option>
+<option value="geometric">Pastel geometric</option>
 </select>
-<button class="secondary" id="stylePreviewButton" type="button" aria-haspopup="dialog" aria-controls="stylePreviewDialog" title="View PDF style samples">👁 <span>Preview</span></button>
+<button aria-controls="stylePreviewDialog" aria-haspopup="dialog" class="secondary" id="stylePreviewButton" title="View PDF style samples" type="button"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M3 4h18v16H3zM7 9h4v4H7zM6 17l4-4 3 2 3-4 3 6"></path></svg><span class="ui-button-label">Style gallery</span></button>
 <div class="clear-actions" id="clearActions">
-<button class="danger" id="clearButton" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="clearMenu">🗑️ <span>Clear</span> ▾</button>
-<div class="clear-menu" id="clearMenu" hidden role="group" aria-label="Clear options">
-<button type="button" class="secondary" id="clearCanvasButton">📝 <span>Clear canvas</span></button>
-<button type="button" class="danger" id="clearStorageButton">🗑️ <span>Clear storage</span></button>
+<button aria-controls="clearMenu" aria-expanded="false" aria-haspopup="true" class="danger" id="clearButton" type="button">Clear ▾</button>
+<div aria-label="Clear options" class="clear-menu" hidden="" id="clearMenu" role="group">
+<button class="secondary" id="clearCanvasButton" type="button">Clear canvas</button>
+<button class="danger" id="clearStorageButton" type="button">Clear storage</button>
 </div>
 </div>
-<button id="analyzeButton" title="Analyze locally, no data sent">✨ <span>Analyze</span></button>
+<button id="analyzeButton" title="Analyze locally, no data sent"><svg aria-hidden="true" class="ui-icon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24"><path d="M4 19V12m5 7V8m5 11V5m5 14v-9"></path></svg><span class="ui-button-label">Analyze</span></button>
+<button aria-controls="mainToolbar" aria-expanded="false" class="secondary mobile-more" id="mobileMoreButton" type="button">More</button>
 </div>
 </div>
-<section class="file-strip" aria-label="Local Markdown files">
-  <span class="file-strip-title">Files</span>
-  <div id="fileTabs" class="file-tabs" role="tablist" aria-label="Open files"></div>
-  <div class="file-commands">
-    <button type="button" class="secondary" id="newFileButton" title="New blank file">＋ New</button>
-    <button type="button" class="secondary" id="addFilesButton" title="Import multiple Markdown files">＋ Open</button>
-    <button type="button" class="secondary" id="importFolderButton" title="Import Markdown files from a local folder (desktop browsers)">Folder</button>
-    <button type="button" class="secondary" id="downloadWorkspaceButton" title="Download all open files as one workspace JSON">↓ Workspace</button>
-    <button type="button" class="secondary" id="openWorkspaceButton" title="Restore a workspace JSON from disk">↑ Workspace</button>
-  </div>
-  <input id="folderInput" type="file" webkitdirectory directory multiple hidden>
-  <input id="workspaceInput" type="file" accept=".json,.iwp" hidden>
+<section aria-label="Local Markdown files" class="file-strip">
+<span class="file-strip-title">Files</span>
+<div aria-label="Open files" class="file-tabs" id="fileTabs" role="tablist"></div>
+<div class="file-commands">
+<button class="secondary" id="newFileButton" title="New blank file" type="button">New</button>
+<button class="secondary" id="addFilesButton" title="Import multiple Markdown files" type="button">Add files</button>
+<button aria-expanded="false" class="secondary file-more" id="fileMoreButton" type="button">File tools</button>
+<button class="secondary" id="importFolderButton" title="Import Markdown files from a local folder (desktop browsers)" type="button">Folder</button>
+<button class="secondary" id="downloadWorkspaceButton" title="Download all open files as one workspace JSON" type="button">Export workspace</button>
+<button class="secondary" id="openWorkspaceButton" title="Restore a workspace JSON from disk" type="button">Import workspace</button>
+</div>
+<input directory="" hidden="" id="folderInput" multiple="" type="file" webkitdirectory=""/>
+<input accept=".json,.iwp" hidden="" id="workspaceInput" type="file"/>
 </section>
 <div class="editor-tools">
-                <div class="format-toolbar" role="toolbar" aria-label="Markdown formatting">
-                    <button type="button" class="secondary" data-insert="heading" title="Heading">H₂</button>
-                    <button type="button" class="secondary" data-insert="bold" title="Bold (Ctrl/Cmd+B)"><b>B</b></button>
-                    <button type="button" class="secondary" data-insert="italic" title="Italic (Ctrl/Cmd+I)"><i>I</i></button>
-                    <button type="button" class="secondary" data-insert="link" title="Link (Ctrl/Cmd+K)">🔗</button>
-                    <button type="button" class="secondary" data-insert="code" title="Inline code">&lt;/&gt;</button>
-                    <button type="button" class="secondary" data-insert="list" title="List">☷</button>
-                    <button type="button" class="secondary" data-insert="task" title="Task list">☑</button>
-                    <button type="button" class="secondary" data-insert="math" title="Insert inline math ($...$)">∑</button>
-                    <button type="button" class="secondary" data-insert="mathBlock" title="Insert display equation ($$...$$)">∑²</button>
-                </div>
-                <div class="segmented" role="group" aria-label="Editor view">
-                    <button type="button" class="secondary" data-view="edit" aria-pressed="true">Edit</button>
-                    <button type="button" class="secondary" data-view="split" aria-pressed="false">Split</button>
-                    <button type="button" class="secondary" data-view="preview" aria-pressed="false">Preview</button>
-                    <button type="button" class="secondary" id="fullscreenButton" title="Full-screen Markdown preview (Esc to close)">⛶ Fullscreen</button>
-                </div>
-            </div>
-            <div class="editor-grid" id="editorGrid" data-view="edit">
-                <div class="pane editor-pane" aria-label="Markdown editor">
-                    <div class="editor-host">
-                        <textarea id="editor" placeholder="Start writing here..." aria-label="Markdown source" spellcheck="true"></textarea>
-                        <div class="editor-empty-guide" id="editorEmptyGuide" aria-hidden="true" hidden>
-                            <div class="editor-guide-title">Welcome to InkFlow</div>
-                            <div class="editor-guide-subtitle">A quick guide — start typing to dismiss.</div>
-                            <p><strong>Write Markdown.</strong> Try <code># Heading</code>, <code>**bold**</code>, <code>- List</code>, or use the formatting toolbar.</p>
-                            <p><strong>Preview &amp; math.</strong> Use <b>Edit / Split / Preview / ⛶ Fullscreen</b>. Write inline <code>$x^2$</code> or a standalone <code>$$...$$</code> formula.</p>
-                            <p><strong>Improve your writing.</strong> Click <b>✨ Analyze</b> for writing suggestions, or <b>Check grammar</b> for English spelling and grammar.</p>
-                            <p><strong>Export beautifully.</strong> Select a PDF <b>Style</b>, use <b>👁 Preview</b> to browse stationery templates, then click <b>📄 PDF</b>. You can also download a <code>.md</code> or <code>.txt</code> file.</p>
-                            <p><strong>Work with files.</strong> Open several local <code>.md</code> files, switch tabs, and export or restore a workspace. Click <b>💾 Save</b> to save this workspace locally (auto-save is off by default).</p>
-                            <div class="editor-guide-tip">Tip: <kbd>Ctrl/Cmd + Space</kbd> for Markdown suggestions. Grammar Check uses locally installed Harper; no document uploads. This guide is not part of your document.</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pane preview-pane" aria-label="Rendered Markdown preview">
-                    <div class="fullscreen-actions"><span>Markdown Preview</span><button type="button" class="secondary" id="exitFullscreenButton" title="Close full-screen preview">✕ Close</button></div>
-                    <div class="preview-scroller"><article id="preview" class="markdown-body"></article></div>
-                </div>
-            </div>
-
+<div aria-label="Markdown formatting" class="format-toolbar" role="toolbar">
+<button class="secondary" data-insert="heading" title="Heading" type="button">H₂</button>
+<button class="secondary" data-insert="bold" title="Bold (Ctrl/Cmd+B)" type="button"><b>B</b></button>
+<button class="secondary" data-insert="italic" title="Italic (Ctrl/Cmd+I)" type="button"><i>I</i></button>
+<button class="secondary" data-insert="link" title="Link (Ctrl/Cmd+K)" type="button">Link</button>
+<button class="secondary" data-insert="code" title="Inline code" type="button">&lt;/&gt;</button>
+<button class="secondary" data-insert="list" title="List" type="button">List</button>
+<button class="secondary" data-insert="task" title="Task list" type="button">Task</button>
+<button class="secondary" data-insert="math" title="Insert inline math ($...$)" type="button">∑</button>
+<button class="secondary" data-insert="mathBlock" title="Insert display equation ($$...$$)" type="button">∑²</button>
 </div>
-<div class="sidebar">
-<h3>Dashboard</h3>
+<div aria-label="Editor view" class="segmented" role="group">
+<button aria-pressed="true" class="secondary" data-view="edit" type="button">Edit</button>
+<button aria-pressed="false" class="secondary" data-view="split" type="button">Split</button>
+<button aria-pressed="false" class="secondary" data-view="preview" type="button">Preview</button>
+<button class="secondary" id="fullscreenButton" title="Full-screen Markdown preview (Esc to close)" type="button">Fullscreen</button>
+</div>
+</div>
+<div class="editor-grid" data-view="edit" id="editorGrid">
+<div aria-label="Markdown editor" class="pane editor-pane">
+<div class="editor-host">
+<textarea aria-label="Markdown source" id="editor" placeholder="Start writing here..." spellcheck="true"></textarea>
+<textarea aria-label="Markdown source on mobile" class="native-mobile-editor" id="nativeMobileEditor" placeholder="Start writing in Markdown…" spellcheck="true"></textarea>
+<div aria-hidden="true" class="editor-empty-guide" hidden="" id="editorEmptyGuide"><div class="editor-guide-title">Welcome to InkFlow</div><div class="editor-guide-subtitle">A quick guide to your workspace. Start typing to dismiss.</div><p><strong>Write in Markdown.</strong> Try <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- List</code>, or <code>- [ ] Task</code>. Use the compact formatting toolbar above.</p><p><strong>Edit and preview.</strong> Switch between <b>Edit</b>, <b>Split</b> and <b>Preview</b>, or open <b>Fullscreen</b> for distraction-free reading.</p><p><strong>Equations.</strong> Type <code>$x^2$</code> inline, or <code>$$\int_0^1 x\,dx$$</code> as a standalone equation. Formulas appear in Preview and PDF exports.</p><p><strong>Multiple files.</strong> Use <b>New document</b> or <b>Open local files</b> in the sidebar. Rename documents there and use <b>Workspace tools</b> to back up or restore all open documents.</p><p><strong>Analyze writing.</strong> Click <b>Analyze</b> for clarity, style and structure feedback in the Dashboard. English <b>Grammar Check</b> uses locally installed Harper when available.</p><p><strong>Export.</strong> Choose <b>Source file</b> to download <code>.md</code> or <code>.txt</code>. Choose <b>PDF document</b> to preview A4 pages, browse 12 stationery styles, then choose <b>Print / Save PDF</b>.</p><p><strong>Privacy and saving.</strong> <b>Save</b> stores your workspace on this device. Auto-save is <b>off by default</b> and can be enabled in Settings. <b>Clear</b> can erase the current canvas or browser storage.</p><div class="editor-guide-tip"><kbd>Ctrl/Cmd+B</kbd> bold · <kbd>Ctrl/Cmd+I</kbd> italic · <kbd>Ctrl/Cmd+Space</kbd> Markdown suggestions · <kbd>Ctrl/Cmd+S</kbd> save. This guide is never part of your document.</div></div>
+</div>
+</div>
+<div aria-label="Rendered Markdown preview" class="pane preview-pane">
+<div class="fullscreen-actions"><span>Markdown Preview</span><button class="secondary" id="exitFullscreenButton" title="Close full-screen preview" type="button">Close</button></div>
+<div class="preview-scroller"><article class="markdown-body" id="preview"></article></div>
+</div>
+</div>
+</div>
+<aside class="sidebar" hidden="" id="writingDashboard">
+<div class="dashboard-header"><h3>Dashboard</h3><button aria-label="Close Dashboard" class="secondary" id="dashboardClose" type="button">Close</button></div>
 <div class="stat-box">
 <div class="stat-item">
 <span id="wordCount">0</span>
@@ -116,53 +112,47 @@
 </div>
 </div>
 <h4>Recommendations</h4>
-<div id="recommendations" aria-label="Writing analysis results">
+<div aria-label="Writing analysis results" id="recommendations">
 <p style="color: #888; font-style: italic; font-size: 0.9rem;">Analysis results will appear here.</p>
 </div>
+</aside>
 </div>
+<div class="dashboard-scrim" hidden="" id="dashboardScrim"></div>
+<dialog aria-labelledby="settingsTitle" class="settings-dialog" id="settingsDialog">
+<div class="style-preview-header">
+<div><h3 id="settingsTitle">Settings</h3><p>Control how this writer saves your work.</p></div>
+<button aria-label="Close settings" class="secondary" id="closeSettings" type="button">✕</button>
 </div>
-
-<dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
-  <div class="style-preview-header">
-    <div><h3 id="settingsTitle">Settings</h3><p>Control how this writer saves your work.</p></div>
-    <button class="secondary" id="closeSettings" type="button" aria-label="Close settings">✕</button>
-  </div>
-  <label class="autosave-row" for="autosaveToggle">
-    <span class="autosave-copy"><strong>Auto-save to this device</strong><small>Off by default. Save stores all open files as a local workspace; without auto-save, your files remain in browser memory until you save or download them.</small></span>
-    <input id="autosaveToggle" type="checkbox" role="switch" aria-label="Automatically save drafts on this device">
-  </label>
-  <div class="grammar-setting-row">
-  <label for="grammarDialect"><strong>English grammar dialect</strong><small>Harper checks English on-device using project-local files.</small></label>
-  <select id="grammarDialect" aria-label="English grammar dialect">
-    <option value="australian">English (Australia)</option>
-    <option value="british">English (UK)</option>
-    <option value="american">English (US)</option>
-    <option value="canadian">English (Canada)</option>
-  </select>
+<label class="autosave-row" for="autosaveToggle">
+<span class="autosave-copy"><strong>Auto-save to this device</strong><small>Off by default. Save stores all open files as a local workspace; without auto-save, your files remain in browser memory until you save or download them.</small></span>
+<input aria-label="Automatically save drafts on this device" id="autosaveToggle" role="switch" type="checkbox"/>
+</label>
+<label class="line-numbers-row" for="lineNumbersToggle"><span class="line-numbers-copy"><strong>Show line numbers</strong><small>Show or hide line numbers in the desktop editor. On mobile, the native text editor has no line-number gutter.</small></span><input aria-label="Show line numbers in the editor" checked="" id="lineNumbersToggle" role="switch" type="checkbox"/></label><div class="grammar-setting-row">
+<label for="grammarDialect"><strong>English grammar dialect</strong><small>Harper checks English on-device using project-local files.</small></label>
+<select aria-label="English grammar dialect" id="grammarDialect">
+<option value="australian">English (Australia)</option>
+<option value="british">English (UK)</option>
+<option value="american">English (US)</option>
+<option value="canadian">English (Canada)</option>
+</select>
 </div>
 <p class="settings-note">Grammar Check uses local Harper files (installed once with npm install). Your writing stays on-device; Writing Analysis works without Harper. Save controls remain unchanged.</p>
-<p class="settings-note">The Save button saves the entire open workspace to browser storage. Use ↓ Workspace to download a portable JSON backup. Clear → Clear storage deletes saved local data, without closing your current files.</p>
+<p class="settings-note">The Save button saves the entire open workspace to browser storage. Use Export workspace to download a portable JSON backup. Clear → Clear storage deletes saved local data, without closing your current files.</p>
+<details class="settings-help"><summary>Quick guide</summary>
+<p>Write with Markdown headings, lists, tables and inline <code>$math$</code> or display <code>$$math$$</code>.</p>
+<p>Use Edit / Split / Preview, or Fullscreen for reading. Analyze opens the writing dashboard, with optional English grammar suggestions.</p>
+<p>Save stores the workspace in this browser. Auto-save is off by default. Export .md / .txt or choose a PDF paper style from the gallery.</p>
+</details>
 </dialog>
-
-<dialog id="stylePreviewDialog" class="style-preview-dialog" aria-labelledby="stylePreviewTitle">
-  <div class="style-preview-header">
-    <div>
-      <h3 id="stylePreviewTitle">PDF style preview</h3>
-      <p>Actual examples of the exported PDF. Select a template to use it.</p>
-    </div>
-    <button class="secondary" id="closeStylePreview" type="button" aria-label="Close preview">✕</button>
-  </div>
-  <div class="style-preview-gallery" id="stylePreviewGallery" aria-label="Available stationery templates"></div>
+<dialog aria-labelledby="stylePreviewTitle" class="style-preview-dialog" id="stylePreviewDialog">
+<div class="style-preview-header">
+<div>
+<h3 id="stylePreviewTitle">PDF style preview</h3>
+<p>Actual examples of the exported PDF. Select a template to use it.</p>
+</div>
+<button aria-label="Close preview" class="secondary" id="closeStylePreview" type="button">✕</button>
+</div>
+<div aria-label="Available stationery templates" class="style-preview-gallery" id="stylePreviewGallery"></div>
 </dialog>
 <div id="print-area"></div>
-
-<script src="js/vendor/markdown-editor.bundle.js"></script>
-<script src="js/analyzer.js"></script>
-<script src="js/grammar.js"></script>
-<script src="js/stationery.js"></script>
-<script src="js/stationery-extra.js"></script>
-<script src="js/math.js"></script>
-<script src="js/workspace.js"></script>
-<script src="js/pdf-pages.js"></script>
-<script src="js/app.js"></script>
-</body></html>
+<script src="js/vendor/markdown-editor.bundle.js"></script><script src="js/analyzer.js"></script><script src="js/grammar.js"></script><script src="js/stationery.js"></script><script src="js/stationery-extra.js"></script><script src="js/math.js"></script><script src="js/workspace.js"></script><script src="js/pdf-pages.js"></script><script src="js/app.js"></script><script src="js/ui-layout.js"></script></body></html>

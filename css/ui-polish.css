@@ -1,0 +1,75 @@
+/* InkFlow UI polish — visual-only changes, preserves production PDF pagination. */
+@media screen {
+  .work-top {display:none!important}
+  /* Clear is an editor action, not a workspace setting. */
+  .nav-footer {background:transparent!important;box-shadow:none!important;border:0!important;border-top:1px solid var(--editor-border)!important;display:flex!important;flex-direction:column!important;gap:6px!important;padding:14px 8px 7px!important;margin-top:auto!important}
+  .nav-footer #settingsButton,.nav-footer #themeButton {width:100%!important;margin:0!important;border:1px solid transparent!important;box-shadow:none!important;background:transparent!important;border-radius:8px!important;padding:9px 10px!important;min-height:38px!important;justify-content:flex-start!important;gap:10px!important}
+  .nav-footer #settingsButton:hover,.nav-footer #themeButton:hover{background:var(--soft)!important}
+  body.dark-mode .nav-footer {background:transparent!important}
+  body.dark-mode .nav-footer #settingsButton,body.dark-mode .nav-footer #themeButton {background:transparent!important}
+  body.dark-mode .nav-footer #settingsButton:hover,body.dark-mode .nav-footer #themeButton:hover{background:var(--soft)!important}
+  .top-actions .clear-actions {position:relative;display:flex;flex:0 0 auto;align-items:center;min-width:0}
+  .top-actions #clearButton {background:transparent!important;border:1px solid var(--editor-border)!important;border-radius:8px!important;color:var(--text-color)!important;font-weight:550!important;padding:7px 10px!important;min-height:34px!important;margin:0!important;white-space:nowrap}
+  .top-actions #clearButton:hover{background:var(--soft)!important}
+  .top-actions #clearButton .ui-button-label {display:inline!important}
+  .top-actions .clear-menu {position:absolute!important;right:0!important;left:auto!important;top:calc(100% + 6px)!important;bottom:auto!important;width:max-content;min-width:165px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;gap:3px;z-index:550;background:var(--sidebar-bg)!important;border:1px solid var(--editor-border)!important;border-radius:10px!important;padding:5px!important;box-shadow:0 12px 30px #0002!important}
+  .top-actions .clear-menu[hidden]{display:none!important}
+  .top-actions .clear-menu button {width:100%;min-height:36px!important;padding:8px!important;justify-content:flex-start!important;display:flex!important;white-space:nowrap}
+  /* Match the original editor's compact left inset and vertical rhythm. */
+  .CodeMirror {font-size:14px!important;line-height:1.65!important}
+  .CodeMirror-lines{padding:10px 0!important}
+  .CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like {padding-left:10px!important;padding-right:12px!important}
+  .CodeMirror-linenumber{padding:0 5px 0 4px!important;min-width:16px!important}
+  #preview{max-width:none!important;margin:0!important;padding:14px 16px 32px!important;font-size:14px!important;line-height:1.65!important}
+  .editor-empty-guide{top:17px!important;left:15px!important;right:14px!important;max-width:680px!important;line-height:1.48!important;font-size:12px!important;overflow:auto!important;max-height:calc(100% - 25px);padding-right:8px!important;pointer-events:none}
+  .editor-empty-guide p{margin-bottom:9px!important}
+  /* Line numbers preference in Settings. */
+  .line-numbers-row {display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--editor-border);font:inherit;cursor:pointer}
+  .line-numbers-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .line-numbers-copy strong {font-size:13px}
+  .line-numbers-copy small{color:var(--subtle);font-size:11.5px;line-height:1.4}
+  .line-numbers-row input{flex:0 0 auto;width:18px;height:18px;accent-color:var(--accent-color);cursor:pointer}
+  .settings-dialog{max-width:min(480px,calc(100vw - 28px))!important}
+  .editor-tools {margin-top:0!important}
+  .top-row,.top-actions,.export-panel,.editor-tools,.editor-grid{min-width:0}
+}
+@media screen and (max-width:920px){
+  /* sidebar becomes a drawer; clear remains reachable in document toolbar */
+  .nav-footer{padding:12px 8px!important}
+}
+@media screen and (max-width:650px){
+  .top-row{gap:7px!important}
+  .top-actions{flex-wrap:wrap!important;gap:5px!important;padding:0!important;min-width:0;justify-content:flex-end!important}
+  .top-actions button{font-size:11px!important}
+  .top-actions #clearButton{min-height:31px!important;padding:6px 7px!important}
+  .top-actions .clear-menu{max-width:calc(100vw - 16px)}
+  .native-mobile-editor{padding:12px 12px!important;line-height:1.55!important}
+  #preview{padding:12px 12px 25px!important}
+  .editor-empty-guide{top:12px!important;left:12px!important;right:10px!important;font-size:11.5px!important;line-height:1.42!important;max-height:calc(100% - 20px)}
+  .editor-tools{gap:6px!important}
+  .format-toolbar{min-width:0!important;max-width:100%!important;overflow-x:auto!important}
+  .export-panel{max-width:100%!important}
+  .export-source-details{min-width:0!important}
+  .export-source-details select{min-width:0!important;width:100%!important}
+  .export-source-details #downloadButton{white-space:nowrap}
+  .pdf-route-preview,.pdf-route-controls{min-width:0!important}
+}
+@media print { .editor-empty-guide{display:none!important} }
+/* Keep Split accessible on small devices: stack two readable panes instead of hiding it. */
+@media screen and (max-width:820px) {
+  .segmented [data-view="split"] {display:inline-flex!important}
+  .editor-grid[data-view="split"] {display:flex!important;flex-direction:column!important;gap:8px!important;min-height:240px!important}
+  .editor-grid[data-view="split"] .editor-pane,.editor-grid[data-view="split"] .preview-pane {
+    display:flex!important;flex:1 1 50%!important;min-height:120px!important;height:auto!important;overflow:hidden!important;
+  }
+  .editor-grid[data-view="split"] .preview-pane .preview-scroller{overflow:auto!important}
+  .editor-empty-guide {pointer-events:auto!important;overflow-y:auto!important;overscroll-behavior:contain}
+}
+/* Dark mode: preserve contrast in the file navigation and export choices. */
+@media screen {
+  body.dark-mode #newFileButton {background:#303030!important;color:#f6f6f6!important;border-color:#494949!important}
+  body.dark-mode .export-option {background:#242424!important;color:#f0f0f0!important;border-color:#454545!important}
+  body.dark-mode .export-option[aria-pressed="true"]{background:#303030!important;color:#fff!important;border-color:#a0a0a0!important}
+  body.dark-mode .export-option small {color:#bcbcbc!important}
+  body.dark-mode .export-option .option-arrow{color:#d1d1d1!important}
+}

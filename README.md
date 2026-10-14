@@ -1,10 +1,18 @@
 # InkFlow
 
-### Capture the moment. Write anywhere. Export your way.
-**A thought on the train. A quick note between classes. A page of ideas before bed.**
-InkFlow is a lightweight, local-first Markdown writing workspace made for capturing thoughts anytime, anywhere—on your phone or computer—without disrupting your flow. Start writing, turn a quick note into a polished document, and export it when you're ready.
+**A local-first Markdown writing workspace with math, writing feedback and beautifully styled PDF exports.**
+
+InkFlow runs entirely in your browser. Write and preview Markdown, work across multiple local documents, check writing quality, render LaTeX equations and export multi-page A4 PDFs with 12 stationery templates. Its interface adapts to desktop and mobile screens.
 
 **Status:** v1.4.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
+
+## Interface preview
+
+InkFlow keeps the focus on writing. The file sidebar is collapsible, the Dashboard opens only when needed, and the two export paths—source files or styled PDFs—are clearly separated. The editor works on desktop and on narrow mobile screens, with native text selection on mobile.
+
+![InkFlow desktop workspace](docs/images/inkflow-workspace-desktop.png)
+
+[Mobile writing interface](docs/images/inkflow-workspace-mobile.png) · [PDF style selection and page preview](docs/images/inkflow-export-preview.png)
 
 ![Sample of six InkFlow PDF stationery designs](docs/images/pdf-styles.png)
 
@@ -17,7 +25,7 @@ InkFlow is a lightweight, local-first Markdown writing workspace made for captur
 - **Writing analysis:** local rule-based clarity, style and Markdown structure suggestions, with jump-to-text.
 - **Optional grammar and spelling:** on-device English checking through Harper, with AU/UK/US/CA variants (one-time dependency installation required).
 - **Styled PDFs:** 12 themes, thumbnail gallery, reliable per-page A4 decorations, multi-page pagination.
-- **Control over data:** auto-save is **off by default**; manually save or explicitly enable auto-save; separate Clear canvas and Clear storage actions.
+- **Control over data:** auto-save is **off by default**; manually save or explicitly enable auto-save; separate Clear canvas and Clear storage actions, plus an optional line-number gutter in Settings.
 
 ## Quick start
 
@@ -43,11 +51,11 @@ npm start
 
 ## How to use
 
-1. Write Markdown in the editor, or choose **Import**, **Open** or **Folder** to load local files (browser permissions apply).
+1. Write Markdown in the editor, or choose **Open local files**, **Add more files** or **Open a folder** in the sidebar (browser permissions apply).
 2. Switch between **Edit**, **Split**, **Preview** and **Fullscreen**; use `$...$` and `$$...$$` for equations.
 3. Choose **Analyze** for local writing advice. Click **Check grammar** to load optional Harper.
-4. Select a **Style**, inspect it in **Preview**, then choose **PDF** and **Save as PDF** in your browser's print dialog.
-5. Use **Download** for the current Markdown file; use **↓ Workspace / ↑ Workspace** to export or restore all open tabs.
+4. In **Export**, choose **Source file** for a `.md` / `.txt` download, or choose **PDF document** to browse 12 styles, inspect paginated A4 previews, and select **Print / Save PDF**.
+5. Use **Workspace tools** in the sidebar to back up or restore all open tabs. The **Clear** menu in the document toolbar has separate canvas and browser-storage actions.
 
 **Saving:** the Save button stores the current workspace in that browser's LocalStorage. Auto-save can be enabled under Settings. Importing or editing does not write to the original disk files; download the updated file or a workspace backup. A browser refresh discards unsaved in-memory changes. Some UI preferences are stored locally even when auto-save is off.
 
