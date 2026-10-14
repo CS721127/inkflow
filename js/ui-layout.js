@@ -176,7 +176,12 @@ function activateRename(tab) {
  if(index<0 || index>=openFiles.length)return;
  const doc=openFiles[index];const original=doc.name;
  const input=mk('input','file-tab-input');input.type='text';input.value=original;input.setAttribute('aria-label','Rename '+original);
- const button=row.querySelector('.file-tab-select');button.hidden=true;row.insertBefore(input,button);
+ // Replace the visible name itself, rather than inserting a second control.
+ // CSS on .file-tab-select uses display overrides, so `hidden` was not sufficient.
+ const button=row.querySelector('.file-tab-select');
+ if(!button)return;
+ row.classList.add('is-renaming');
+ button.replaceWith(input);
  let done=false;
  const finish=save=>{
   if(done)return;done=true;
@@ -189,6 +194,7 @@ function activateRename(tab) {
   renderFileTabs();
  };
  input.addEventListener('click',e=>e.stopPropagation());
+ input.addEventListener('pointerdown',e=>e.stopPropagation());
  input.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();finish(true)}if(e.key==='Escape'){e.preventDefault();finish(false)}});
  input.addEventListener('blur',()=>finish(true));
  input.focus();input.select();
@@ -327,8 +333,7 @@ style.addEventListener('change',()=>{paintStyle();if(document.body.classList.con
 print.addEventListener('click',()=>{if(!print.disabled)window.print()});
 window.addEventListener('resize',()=>{if(document.body.classList.contains('pdf-workflow-open') && !print.disabled)renderSheets()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.body.classList.contains('pdf-workflow-open')){e.preventDefault();closePDF();}},true);
-// UI review metadata only; no formal production release changes.
-document.title='InkFlow — Refined UI Review';
+document.title='InkFlow';
 })();
 
 /* Editor preferences: line numbers are independently configurable from autosave. */
@@ -344,12 +349,32 @@ document.title='InkFlow — Refined UI Review';
  const clear=document.getElementById('clearStorageButton');
  clear?.addEventListener('click',()=>apply(true));
 })();
-/* Mobile empty guide can be scrolled, or tapped to begin typing. */
+/* Keep the empty-document guide aligned to the actual first character in
+   CodeMirror.  The line-number gutter changes width and must never overlay it. */
 (function(){
  const guide=document.getElementById('editorEmptyGuide');
- guide?.addEventListener('click',()=>{
+ if(!guide)return;
+ const align=()=>{
+  if(typeof cm==='undefined')return;
+  if(window.innerWidth<=820){
+   guide.style.removeProperty('--inkflow-guide-left');
+   return;
+  }
+  const host=guide.parentElement;
+  if(!host)return;
+  const x=cm.charCoords({line:0,ch:0},'window').left;
+  const inset=Math.max(10,Math.ceil(x-host.getBoundingClientRect().left));
+  guide.style.setProperty('--inkflow-guide-left',inset+'px');
+ };
+ // ResizeObserver covers sidebar collapse and the editor/view layout changes.
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(align).observe(guide.parentElement);
+ cm.on('refresh',align);
+ cm.on('change',()=>requestAnimationFrame(align));
+ window.addEventListener('resize',align);
+ requestAnimationFrame(align);
+ guide.addEventListener('click',()=>{
   const mobile=document.getElementById('nativeMobileEditor');
-  if(window.innerWidth<=650)mobile?.focus({preventScroll:true});
-  else if(typeof cm!=='undefined')cm.focus();
+  if(window.innerWidth<=820)mobile?.focus({preventScroll:true});
+  else cm.focus();
  });
 })();

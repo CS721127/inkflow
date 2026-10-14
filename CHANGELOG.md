@@ -2,18 +2,21 @@
 
 InkFlow tracks user-facing changes here. Earlier entries summarize saved development milestones; Git commits 1–12 are reconstructed from archived snapshots, rather than original commit timestamps.
 
-## [1.5.0] — Release preparation (2026-10-13)
+## [1.4.0] — UI refinement (2026-10-14)
 
-- Adopt the **InkFlow** project name throughout the public-facing application and documentation.
-- Add publish-ready README, Chinese quick start, MIT license, third-party notices, contributing, privacy, security and deployment guides.
-- Add repeatable static distribution command (`npm run build`) and GitHub CI checks.
-- Keep editor behavior and the existing local browser storage keys unchanged to avoid invalidating older saved workspaces.
 - Refreshed the writing layout with a collapsible workspace sidebar and a minimal, two-step export flow.
 - Moved document clearing to the editor's main action bar.
 - Reduced editor and rendered-preview padding, and added an opt-in setting to show or hide desktop editor line numbers.
 - Restored mobile Split view with vertically stacked panes and preserved native text selection.
 - Expanded the empty editor guide without adding any content to actual documents.
 - Kept PDF pagination, all twelve stationery styles, and the existing local-first storage controls.
+
+## [1.4.0] — Release preparation (2026-10-13)
+
+- Adopt the **InkFlow** project name throughout the public-facing application and documentation.
+- Add publish-ready README, Chinese quick start, MIT license, third-party notices, contributing, privacy, security and deployment guides.
+- Add repeatable static distribution command (`npm run build`) and GitHub CI checks.
+- Keep editor behavior and the existing local browser storage keys unchanged to avoid invalidating older saved workspaces.
 
 ## [1.3.0] — Additional stationery styles
 
@@ -33,3 +36,5 @@ InkFlow tracks user-facing changes here. Earlier entries summarize saved develop
 ## [1.0.0] — Core writer
 
 - Markdown editor, preview, optional Harper grammar checking, local writing analysis, opt-in auto-save and stationery PDF export.
+
+

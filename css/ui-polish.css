@@ -73,3 +73,25 @@
   body.dark-mode .export-option small {color:#bcbcbc!important}
   body.dark-mode .export-option .option-arrow{color:#d1d1d1!important}
 }
+
+/* The inline rename control takes the place of the name, never adds a row. */
+@media screen {
+  #inkNav .file-tab.is-renaming .file-tab-input {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #inkNav .file-tab.is-renaming .file-tab-rename {display:none !important}
+}
+/* Align the welcome guide with source text, beyond CodeMirror's gutter.
+   This custom property is measured from the real text caret. */
+@media screen and (min-width:821px) {
+  .editor-host .editor-empty-guide {
+    left:var(--inkflow-guide-left, 40px) !important;
+    right:12px !important;
+  }
+}
+@media screen and (max-width:820px) {
+  .editor-host .editor-empty-guide {left:12px !important;right:12px !important}
+}
