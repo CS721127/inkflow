@@ -4,7 +4,7 @@
 
 InkFlow runs entirely in your browser. Write and preview Markdown, work across multiple local documents, check writing quality, render LaTeX equations and export multi-page A4 PDFs with 12 stationery templates. Its interface adapts to desktop and mobile screens.
 
-**Status:** v1.4.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
+**Status:** v1.5.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
 
 ## Interface preview
 
