@@ -2,6 +2,14 @@
 
 InkFlow tracks user-facing changes here. Earlier entries summarize saved development milestones; Git commits 1–12 are reconstructed from archived snapshots, rather than original commit timestamps.
 
+## Unreleased — Mobile A4 export and editor placeholder
+
+- Add a direct, browser-local A4 PDF download (explicit PDF page dimensions) to bypass mobile print scaling.
+- Keep native Print available on desktop. Direct downloads are rasterized, unlike native print.
+- Remove the redundant “Start writing in Markdown” textarea placeholder while retaining the detailed welcome guide.
+- Avoid upper-left Sakura artwork overlapping the document heading.
+
+
 ## [1.4.0] — UI refinement (2026-10-14)
 
 - Refreshed the writing layout with a collapsible workspace sidebar and a minimal, two-step export flow.
@@ -36,5 +44,4 @@ InkFlow tracks user-facing changes here. Earlier entries summarize saved develop
 ## [1.0.0] — Core writer
 
 - Markdown editor, preview, optional Harper grammar checking, local writing analysis, opt-in auto-save and stationery PDF export.
-
 

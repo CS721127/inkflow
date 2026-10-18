@@ -238,7 +238,7 @@ const route=mk('section');route.id='pdfWorkflow';route.setAttribute('aria-label'
  <div class="pdf-route-topbar">
   <div class="pdf-route-left"><button type="button" class="secondary" id="pdfBackButton">← Back</button>
    <div class="pdf-route-title"><strong>Export as PDF</strong><span id="pdfDocumentName">Document</span></div></div>
-  <div class="pdf-route-actions"><button type="button" class="secondary" id="printPdfButton" disabled>Print / Save PDF</button></div>
+  <div class="pdf-route-actions"><button type="button" id="downloadPdfButton" disabled>Download A4 PDF</button><button type="button" class="secondary" id="printPdfButton" disabled>Print</button></div>
  </div>
  <div class="pdf-route-body">
   <aside class="pdf-route-controls">
@@ -260,7 +260,7 @@ document.body.append(route);
 const picker=route.querySelector('.pdf-style-picker');picker.insertBefore(style,$('browsePdfStyles'));
 legacyPdf.hidden=true;legacyGallery.hidden=true;
 const styleNames={classic:'Plain',ruled:'Ruled paper',vintage:'Vintage letter',floral:'Floral letter',kawaii:'Cute cartoon',sky:'Sky & clouds',sakura:'Sakura blossom',botanical:'Sage botanical',grid:'Graph notebook',coffee:'Cozy coffee',night:'Moonlit stars',geometric:'Pastel geometric'};
-const gallery=$('pdfGallery'),previewPages=$('pdfPreviewPages'),loading=$('pdfLoading'),print=$('printPdfButton');
+const gallery=$('pdfGallery'),previewPages=$('pdfPreviewPages'),loading=$('pdfLoading'),print=$('printPdfButton'),downloadPDF=$('downloadPdfButton');
 let buildSeq=0,requestTimer=0;
 // Inline SVG thumbnails keep this UI demo truly self-contained.
 function templateThumbnail(id){
@@ -299,7 +299,7 @@ function renderSheets(){
 }
 async function preparePDF(){
  const seq=++buildSeq;
- print.disabled=true;loading.hidden=false;loading.textContent='Preparing document preview…';
+ print.disabled=true;downloadPDF.disabled=true;loading.hidden=false;loading.textContent='Preparing document preview…';
  try {
   updatePreview();
   await WriterMath.ready();
@@ -316,7 +316,7 @@ async function preparePDF(){
    hasHeading:/^\s*#\s+/.test(input),html:input.trim()?preview.innerHTML:'',stationery:stationeryArt
   });
   if(seq!==buildSeq)return;
-  renderSheets();loading.hidden=true;print.disabled=false;
+  renderSheets();loading.hidden=true;print.disabled=false;downloadPDF.disabled=false;
   if(result.warnings)loading.textContent='Some oversized content might not fit within one page.';
  } catch(err){console.error(err);loading.hidden=false;loading.textContent='Unable to generate preview: '+err.message;}
 }
@@ -331,9 +331,31 @@ style.addEventListener('change',()=>{paintStyle();if(document.body.classList.con
 }});
 // Fully prepared sheets are printed synchronously from a direct user gesture.
 print.addEventListener('click',()=>{if(!print.disabled)window.print()});
+// Downloading an actual PDF avoids WebKit's native print page-size heuristics.
+// Each generated page has a fixed A4 MediaBox (595.28 x 841.89 PDF points).
+downloadPDF.addEventListener('click',async()=>{
+ if(downloadPDF.disabled||!window.InkFlowPdfDownload)return;
+ downloadPDF.disabled=true;print.disabled=true;
+ const oldText=downloadPDF.textContent;
+ try{
+  const pdf=await InkFlowPdfDownload.generate($('print-area'),{
+   onProgress:(page,total)=>{downloadPDF.textContent='Creating '+page+'/'+total+'…';}
+  });
+  const base=($('filenameInput').value.trim()||'InkFlow Document').replace(/[\\/:*?"<>|\x00-\x1F]/g,'_').replace(/\.pdf$/i,'');
+  InkFlowPdfDownload.download(pdf,base+'.pdf');
+ }catch(error){
+  console.error('Direct A4 PDF download failed',error);
+  loading.hidden=false;
+  loading.textContent='Direct PDF download failed. You can still try Print on a computer. '+error.message;
+ }finally{
+  downloadPDF.textContent=oldText;
+  downloadPDF.disabled=false;print.disabled=false;
+ }
+});
 window.addEventListener('resize',()=>{if(document.body.classList.contains('pdf-workflow-open') && !print.disabled)renderSheets()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.body.classList.contains('pdf-workflow-open')){e.preventDefault();closePDF();}},true);
-document.title='InkFlow';
+// UI review metadata only; no formal production release changes.
+document.title='InkFlow — Refined UI Review';
 })();
 
 /* Editor preferences: line numbers are independently configurable from autosave. */

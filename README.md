@@ -4,7 +4,7 @@
 
 InkFlow runs entirely in your browser. Write and preview Markdown, work across multiple local documents, check writing quality, render LaTeX equations and export multi-page A4 PDFs with 12 stationery templates. Its interface adapts to desktop and mobile screens.
 
-**Status:** v1.4.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
+**Status:** v1.5.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
 
 ## Interface preview
 
@@ -24,7 +24,7 @@ InkFlow keeps the focus on writing. The file sidebar is collapsible, the Dashboa
 - **Multi-document workspace:** import multiple `.md` or `.txt` files, switch tabs, and export/restore a workspace JSON backup.
 - **Writing analysis:** local rule-based clarity, style and Markdown structure suggestions, with jump-to-text.
 - **Optional grammar and spelling:** on-device English checking through Harper, with AU/UK/US/CA variants (one-time dependency installation required).
-- **Styled PDFs:** 12 themes, thumbnail gallery, reliable per-page A4 decorations, multi-page pagination.
+- **Styled PDFs:** 12 themes, thumbnail gallery, per-page A4 decorations, multi-page pagination and a phone-friendly direct PDF download.
 - **Control over data:** auto-save is **off by default**; manually save or explicitly enable auto-save; separate Clear canvas and Clear storage actions, plus an optional line-number gutter in Settings.
 
 ## Quick start
@@ -54,7 +54,7 @@ npm start
 1. Write Markdown in the editor, or choose **Open local files**, **Add more files** or **Open a folder** in the sidebar (browser permissions apply).
 2. Switch between **Edit**, **Split**, **Preview** and **Fullscreen**; use `$...$` and `$$...$$` for equations.
 3. Choose **Analyze** for local writing advice. Click **Check grammar** to load optional Harper.
-4. In **Export**, choose **Source file** for a `.md` / `.txt` download, or choose **PDF document** to browse 12 styles, inspect paginated A4 previews, and select **Print / Save PDF**.
+4. In **Export**, choose **Source file** for a `.md` / `.txt` download, or choose **PDF document** to browse 12 styles, inspect paginated A4 previews, and choose **Download A4 PDF**. Desktop also offers a **Print** option.
 5. Use **Workspace tools** in the sidebar to back up or restore all open tabs. The **Clear** menu in the document toolbar has separate canvas and browser-storage actions.
 
 **Saving:** the Save button stores the current workspace in that browser's LocalStorage. Auto-save can be enabled under Settings. Importing or editing does not write to the original disk files; download the updated file or a workspace backup. A browser refresh discards unsaved in-memory changes. Some UI preferences are stored locally even when auto-save is off.
@@ -105,7 +105,7 @@ All editing and analysis take place client-side. Hosting a static site is not a 
 - **No account / no document upload to a backend:** text stays in your browser for writing analysis and Harper checks. Loading npm dependencies is separate from document processing.
 - **Auto-save is opt-in.** Manual Save writes browser LocalStorage; Workspace export downloads a JSON backup. Clear storage deletes saved InkFlow state in that browser origin. [Privacy details](PRIVACY.md).
 - **Grammar:** Harper is English-focused and may produce incorrect suggestions. Real Harper checking requires its browser runtime files; those are not shipped in this source ZIP.
-- **PDF:** preview and pagination are optimized for A4. Browser printing uses the device's native print implementation; native iOS Safari behavior can differ from tested Chromium.
+- **PDF:** **Download A4 PDF** generates real 210 × 297 mm PDF pages in the browser without relying on the mobile print dialog (rendered as images, so text is not selectable). Desktop **Print** retains browser-native output with selectable text; native iOS Safari has not been physically tested. Very large documents may require substantial device memory, and cross-origin images may not be embedded.
 - **Local files:** file/folder import does not grant ongoing disk access or allow silent overwrites. Relative local image paths may need hosting alongside the page.
 
 ## Contributing, security and licensing

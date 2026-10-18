@@ -13,5 +13,6 @@ Thumbs.db
 .env
 .env.local
 
-# Locally packaged artifacts
-InkFlow_Offline_Ready.zip
+# harper
+vendor/harper/*
+!vendor/harper/README.md

@@ -95,3 +95,24 @@
 @media screen and (max-width:820px) {
   .editor-host .editor-empty-guide {left:12px !important;right:12px !important}
 }
+
+/* Export uses an actual fixed-A4 PDF on phones: no print-dialog paper scaling. */
+#pdfWorkflow .pdf-route-actions #downloadPdfButton {
+  background:var(--text-color)!important;
+  color:var(--bg-color)!important;
+  border:1px solid var(--text-color)!important;
+  font-weight:650!important;
+  min-width:132px;
+  justify-content:center;
+}
+#pdfWorkflow .pdf-route-actions #downloadPdfButton:disabled {opacity:.55;cursor:wait}
+#pdfWorkflow .pdf-route-actions #printPdfButton {
+  background:var(--sidebar-bg)!important;
+  color:var(--text-color)!important;
+  border:1px solid var(--editor-border)!important;
+  min-width:67px!important;
+}
+@media(max-width:650px) {
+ #pdfWorkflow .pdf-route-actions #printPdfButton{display:none!important}
+ #pdfWorkflow .pdf-route-actions #downloadPdfButton{min-width:125px;font-size:11px!important;padding:9px 11px!important;}
+}

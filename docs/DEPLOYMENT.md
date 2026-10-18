@@ -36,6 +36,8 @@ npm start
 
 Opens at `http://localhost:4173`. This server binds to 127.0.0.1 only, so another device on your Wi-Fi cannot access it. To test on a phone, deploy to a static host or use a deliberately configured LAN server on a trusted network. School/university Wi-Fi networks may block peer-to-peer traffic.
 
-## PDF printing
+## PDF downloading and printing
 
 InkFlow builds independent A4 SVG stationery backgrounds for each page. Most desktop Chromium printing works well. Browser print dialogs can override print settings; in particular, iPhone Safari still requires manual device-level verification. If your browser exposes print options, use A4 and the default/100% scale without extra printer margins.
+
+On mobile, use **Download A4 PDF** for an explicit 210 × 297 mm page size. It is rendered locally as pages of images; desktop **Print** keeps browser-native selectable text.

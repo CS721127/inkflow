@@ -8,6 +8,9 @@ const WriterPdfPages = (() => {
   const TOLERANCE = 1.0; // CSS px; allow browser rounding at physical mm edges.
   const getMargins = style => {
     const fancy = !['classic','ruled'].includes(style);
+    // Sakura's floral decoration reaches farther into the upper-left corner.
+    // Keep content clear of artwork on every A4 sheet.
+    if(style==='sakura')return {top:36,bottom:31,left:29,right:24};
     return {top:fancy?27:18, bottom:fancy?31:18,
             left:['ruled','grid'].includes(style)?33:(fancy?23:19),
             right:style==='ruled'?18:(fancy?23:19)};
