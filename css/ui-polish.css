@@ -116,3 +116,16 @@
  #pdfWorkflow .pdf-route-actions #printPdfButton{display:none!important}
  #pdfWorkflow .pdf-route-actions #downloadPdfButton{min-width:125px;font-size:11px!important;padding:9px 11px!important;}
 }
+
+/* Two compact clipboard actions; no extra toolbar row or panel. */
+@media screen {
+  .format-toolbar .clipboard-action {
+    font-size:11px!important;font-weight:550!important;
+    min-width:40px!important;padding-inline:7px!important;
+  }
+  #copyTextButton {margin-left:5px!important;border-left:1px solid var(--editor-border)!important;border-radius:4px!important}
+  .format-toolbar .clipboard-action:focus-visible {outline:2px solid var(--accent-color)!important;outline-offset:1px}
+}
+@media screen and (max-width:650px) {
+  .format-toolbar .clipboard-action {min-width:40px!important;padding-inline:6px!important;flex-shrink:0}
+}

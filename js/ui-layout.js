@@ -15,6 +15,75 @@
  native.addEventListener('input',()=>{if(native.value!==cm.getValue()){cm.setValue(native.value);}});
  const remember=()=>lastNativeSelection={start:native.selectionStart,end:native.selectionEnd};
  ['select','keyup','mouseup','touchend','blur'].forEach(t=>native.addEventListener(t,remember));
+ // The small Copy/Paste controls work with both CodeMirror and the native
+ // mobile textarea. Selection is remembered before a toolbar tap blurs it.
+ const copyButton=$('copyTextButton'),pasteButton=$('pasteTextButton');
+ let inAppClipboard=null;
+ for(const button of [copyButton,pasteButton]){
+   button.addEventListener('pointerdown',()=>{if(mobile())remember()});
+ }
+ function copyFallback(text){
+   const temporary=document.createElement('textarea');
+   temporary.value=text;
+   temporary.setAttribute('aria-hidden','true');
+   temporary.setAttribute('readonly','');
+   Object.assign(temporary.style,{position:'fixed',top:'0',left:'0',width:'1px',height:'1px',opacity:'0'});
+   document.body.appendChild(temporary);
+   temporary.focus();temporary.select();
+   let copied=false;
+   try{copied=document.execCommand('copy')}catch{}
+   temporary.remove();
+   return copied;
+ }
+ copyButton.addEventListener('click',async()=>{
+   const onMobile=mobile();
+   const {start,end}=lastNativeSelection;
+   const selected=onMobile?native.value.slice(start,end):cm.getSelection();
+   const text=selected||cm.getValue();
+   if(!text){showMessage('Nothing to copy.');return;}
+   inAppClipboard=text; // memory-only fallback, never saved or uploaded
+   let copied=false;
+   // Prefer the browser clipboard, with an older-browser fallback.
+   // After a denied async permission request, execCommand may also fail.
+   if(navigator.clipboard?.writeText){
+     try{await navigator.clipboard.writeText(text);copied=true}catch{}
+   }
+   if(!copied)copied=copyFallback(text);
+   if(onMobile){native.focus({preventScroll:true});native.setSelectionRange(start,end);remember();}
+   else cm.focus();
+   showMessage(copied?(selected?'Selection copied.':'Document copied.'):'Copied within InkFlow. System clipboard access was blocked.');
+ });
+ pasteButton.addEventListener('click',async()=>{
+   const onMobile=mobile();
+   const targetFile=activeFileId;
+   const originalContent=cm.getValue();
+   const range={...lastNativeSelection};
+   let text=null,fromInternal=false;
+   if(navigator.clipboard?.readText){
+     try{text=await navigator.clipboard.readText()}catch{}
+   }
+   if(text===null && inAppClipboard!==null){text=inAppClipboard;fromInternal=true;}
+   if(text===null){
+     showMessage('Clipboard access blocked. Use long-press → Paste or Ctrl/Cmd+V.');
+     if(onMobile)native.focus({preventScroll:true});else cm.focus();
+     return;
+   }
+   if(targetFile!==activeFileId || cm.getValue()!==originalContent){showMessage('Document changed. Choose Paste again.');return;}
+   if(!text){showMessage('Clipboard is empty.');return;}
+   if(onMobile){
+     if(grid.dataset.view==='preview')setView('edit');
+     // An in-progress native selection should survive the toolbar tap.
+     const start=Math.min(range.start,native.value.length),end=Math.min(range.end,native.value.length);
+     native.setRangeText(text,start,end,'end');
+     cm.setValue(native.value); // uses existing change/save/preview handlers
+     const cursor=start+text.length;
+     native.focus({preventScroll:true});native.setSelectionRange(cursor,cursor);remember();
+   }else{
+     if(grid.dataset.view==='preview')setView('edit');
+     cm.replaceSelection(text,'around');cm.focus();
+   }
+   showMessage(fromInternal?'Pasted last InkFlow copy (clipboard permission unavailable).':'Pasted at cursor.');
+ });
  const cmFormat=insertFormat;
  insertFormat=function(type){
   if(!mobile())return cmFormat(type);
