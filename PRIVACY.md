@@ -20,6 +20,8 @@ InkFlow is a **client-side Markdown writing application**. It has no account sys
 
 ## Dependencies and hosting
 
+The Mac app bundles the editor, MathJax and Harper and processes documents locally. Its workspace and settings are stored separately from your browser, in InkFlow's application data under `~/Library/Application Support/InkFlow`. The app does not add analytics, document uploads or automatic update requests. External document images can still contact their specified hosts, and clicking external links opens your default browser. Export workspace before clearing app storage or migrating to another device.
+
 A one-time `npm install` downloads Harper's executable files from npm; **it does not submit your documents**. If InkFlow is deployed by someone else, their web host necessarily receives ordinary requests for static files and may maintain standard access logs. The source project itself does not include analytics or an account backend.
 
 ## Limits

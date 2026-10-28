@@ -2,9 +2,17 @@
 
 **A local-first Markdown writing workspace with math, writing feedback and beautifully styled PDF exports.**
 
-InkFlow runs entirely in your browser. Write and preview Markdown, work across multiple local documents, check writing quality, render LaTeX equations and export multi-page A4 PDFs with 12 stationery templates. Its interface adapts to desktop and mobile screens.
+InkFlow runs as a standalone Mac app or entirely in your browser. Write and preview Markdown, work across multiple local documents, check writing quality, render LaTeX equations and export multi-page A4 PDFs with 12 stationery templates. Its interface adapts to desktop and mobile screens.
 
-**Status:** v1.5.0 · client-side static web app · Node.js ≥18 for the included development server · no account or backend required.
+**Status:** v1.6.0 · macOS app and client-side static web app · Node.js ≥22.12 for development · no account or backend required.
+
+## Mac app
+
+[Download InkFlow for Mac](https://github.com/CS721127/inkflow/releases/latest) — choose **arm64** for Apple Silicon or **x64** for Intel. Requires macOS 13 or later. Open the DMG and drag InkFlow into Applications; no Node.js installation is needed to use the app.
+
+The Mac app includes offline grammar checking, math and PDF export, native menus and keyboard shortcuts, and a warning before closing unsaved writing. Save (⌘S) stores your workspace in InkFlow's own application storage. Transfer browser documents using Export workspace and Import workspace.
+
+This first Mac release is ad-hoc signed and **not Apple notarized**. If macOS blocks it, approve InkFlow through **System Settings → Privacy & Security → Open Anyway** after attempting to open it. See the [Mac build and installation guide](docs/MACOS.md).
 
 ## Interface preview
 
@@ -29,7 +37,7 @@ InkFlow keeps the focus on writing. The file sidebar is collapsible, the Dashboa
 
 ## Quick start
 
-**Prerequisite:** Node.js 18+.
+**Prerequisite:** Node.js 22.12+ (only for development; Mac app users do not need Node.js).
 
 ```bash
 # From the extracted InkFlow project directory
@@ -68,6 +76,9 @@ npm start                # starts the app on 127.0.0.1:4173
 PORT=8080 npm start      # use another local port
 npm run setup:harper     # repeat local Harper runtime copy after installation
 npm run package:offline  # creates portable ZIP (only after Harper is installed)
+npm run desktop          # launches the standalone Mac app after npm install
+npm run test:desktop     # tests the real desktop app in isolated temporary storage
+npm run build:mac        # creates Apple Silicon and Intel DMG/ZIP files in release/
 ```
 
 No framework build system or backend is required. `npm run build` creates a static `dist/` directory, without contacting external services; it warns if optional Harper runtime is not yet present.

@@ -2,6 +2,13 @@
 
 InkFlow tracks user-facing changes here. Earlier entries summarize saved development milestones; Git commits 1–12 are reconstructed from archived snapshots, rather than original commit timestamps.
 
+## [1.6.0] — Mac app (2026-10-29)
+
+- Add a standalone macOS application with native menus, app icon, keyboard shortcuts and drag-to-Applications installers for Apple Silicon and Intel.
+- Bundle all editor assets, MathJax and Harper for offline use, with a sandboxed renderer and restricted local asset routing.
+- Warn before discarding unsaved desktop work; keep manual Save and opt-in auto-save in separate application storage.
+- Add desktop regression and runtime smoke tests, reproducible packaging, and a GitHub release workflow with checksums.
+
 ## Unreleased — Mobile A4 export and editor placeholder
 
 - Add a direct, browser-local A4 PDF download (explicit PDF page dimensions) to bypass mobile print scaling.
