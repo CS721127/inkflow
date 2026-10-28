@@ -12,7 +12,7 @@ test('InkFlow branding and package metadata', async () => {
   assert.match(html, /<title>InkFlow/);
   assert.match(html, /Welcome to InkFlow/);
   assert.equal(packageJson.name, 'inkflow');
-  assert.equal(packageJson.version, '1.4.0');
+  assert.equal(packageJson.version, '1.6.0');
   assert.equal(packageJson.private, true);
 });
 

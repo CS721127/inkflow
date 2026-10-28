@@ -751,3 +751,10 @@ function initialize(){
 }
 initialize();
 syncEditorEmptyGuide();
+
+// The Mac shell shows a native confirmation before unsaved writing is discarded.
+if(location.protocol==='inkflow:')window.addEventListener('beforeunload',event=>{
+ if(openFiles.some(file=>file.dirty)){
+  event.preventDefault();event.returnValue='';
+ }
+});

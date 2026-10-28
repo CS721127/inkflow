@@ -423,8 +423,8 @@ downloadPDF.addEventListener('click',async()=>{
 });
 window.addEventListener('resize',()=>{if(document.body.classList.contains('pdf-workflow-open') && !print.disabled)renderSheets()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape' && document.body.classList.contains('pdf-workflow-open')){e.preventDefault();closePDF();}},true);
-// UI review metadata only; no formal production release changes.
-document.title='InkFlow — Refined UI Review';
+// Keep browser and desktop window titles consistent.
+document.title='InkFlow — Markdown Workspace';
 })();
 
 /* Editor preferences: line numbers are independently configurable from autosave. */

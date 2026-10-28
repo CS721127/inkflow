@@ -1,6 +1,8 @@
 # Installed packages and local distribution output
 node_modules/
 dist/
+release/
+desktop-smoke-output/
 coverage/
 *.tgz
 *.log

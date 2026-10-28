@@ -1,8 +1,15 @@
 {
   "name": "inkflow",
-  "version": "1.4.0",
+  "version": "1.6.0",
   "private": true,
   "description": "Local-first Markdown editor with math, multi-document workspaces, on-device grammar checking and styled A4 PDF exports",
+  "main": "desktop/main.cjs",
+  "author": "Cen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CS721127/inkflow.git"
+  },
   "scripts": {
     "start": "node scripts/serve.mjs",
     "dev": "node scripts/serve.mjs",
@@ -10,12 +17,64 @@
     "postinstall": "node scripts/vendor-harper.mjs",
     "test": "node --test tests/*.test.mjs",
     "build": "node scripts/build-site.mjs",
-    "package:offline": "python3 scripts/pack_offline.py"
+    "package:offline": "python3 scripts/pack_offline.py",
+    "desktop": "npm run build && electron .",
+    "test:desktop": "node scripts/test-desktop.mjs",
+    "build:mac": "npm run build && electron-builder --mac --arm64 --x64 --publish never"
   },
   "dependencies": {
     "harper.js": "2.4.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
+  },
+  "build": {
+    "appId": "com.cs721127.inkflow",
+    "productName": "InkFlow",
+    "directories": {
+      "output": "release",
+      "buildResources": "desktop/resources"
+    },
+    "files": [
+      "desktop/main.cjs",
+      "desktop/security.cjs",
+      "dist/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "npmRebuild": false,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "desktop/resources/icon.icns",
+      "minimumSystemVersion": "13.0",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "notarize": false,
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "artifactName": "InkFlow-${version}-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "InkFlow ${version}",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "publish": null
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
   }
 }
